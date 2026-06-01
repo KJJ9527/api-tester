@@ -2,41 +2,29 @@
 import React, { useState } from 'react';
 import {
   Card,
-  Form,
-  Input,
-  Select,
   Button,
   Table,
   Tag,
   Typography,
   Space,
-  Divider,
-  Spin,
   message,
   Row,
   Col,
+  Tabs,
+  Spin,
+  Input,
 } from 'antd';
-import { SendOutlined, CopyOutlined } from '@ant-design/icons';
+import { SendOutlined, CopyOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useConfigStore } from '@/stores/configStore';
 import { getApiClient } from '@/api/client';
 
 const { Title, Text } = Typography;
-const { Option } = Select;
+const { TextArea } = Input;
+const { TabPane } = Tabs;
 
-// 请求参数表格列定义
 const columns = [
-  {
-    title: '参数名',
-    dataIndex: 'name',
-    key: 'name',
-    width: 150,
-  },
-  {
-    title: '类型',
-    dataIndex: 'type',
-    key: 'type',
-    width: 100,
-  },
+  { title: '参数名', dataIndex: 'name', key: 'name', width: 150 },
+  { title: '类型', dataIndex: 'type', key: 'type', width: 100 },
   {
     title: '必填',
     dataIndex: 'required',
@@ -46,14 +34,9 @@ const columns = [
       <Tag color={required ? 'red' : 'default'}>{required ? '是' : '否'}</Tag>
     ),
   },
-  {
-    title: '描述',
-    dataIndex: 'description',
-    key: 'description',
-  },
+  { title: '描述', dataIndex: 'description', key: 'description' },
 ];
 
-// 静态参数文档
 const paramDefinitions = [
   { name: 'merchantId', type: 'string', required: true, description: '商户唯一标识符，由平台分配' },
   { name: 'accountName', type: 'string', required: true, description: '账户持有人真实姓名' },
@@ -65,29 +48,49 @@ const paramDefinitions = [
   { name: 'sign', type: 'string', required: true, description: '签名' },
 ];
 
+const defaultRequestJson = {
+  merchantId: 'MCH_20240101_001',
+  accountName: '张三',
+  accountType: 'PERSONAL',
+  idCardNo: '310xxxxxxxxxxxxxx',
+  bankCode: 'ICBC',
+  mobile: '138xxxxxxxx',
+  timestamp: 1704067200000,
+  sign: 'A3F2...8C1D',
+};
+
 const CreateAccount: React.FC = () => {
-  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any>(null);
+  const [requestJson, setRequestJson] = useState(JSON.stringify(defaultRequestJson, null, 2));
+  const [jsonError, setJsonError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('request');
   const { apiBaseURL } = useConfigStore();
 
-  // 提交请求
-  const handleSubmit = async () => {
+  const parseRequest = (): any => {
     try {
-      const apiClient = getApiClient(); // 如果未配置后端地址，会抛出错误
-      const values = await form.validateFields();
+      const parsed = JSON.parse(requestJson);
+      setJsonError(null);
+      return parsed;
+    } catch (e: any) {
+      setJsonError(e.message);
+      return null;
+    }
+  };
+
+  const handleSubmit = async () => {
+    const payload = parseRequest();
+    if (!payload) {
+      message.error('请求 JSON 格式错误，请修正后重试');
+      return;
+    }
+    try {
+      const apiClient = getApiClient();
       setLoading(true);
-
-      // 补充 timestamp 和 sign（示例签名，实际需按后端规则生成）
-      const payload = {
-        ...values,
-        timestamp: Date.now(),
-        sign: `demo_sign_${Math.random().toString(36).substring(2, 10)}`,
-      };
-
       const responseData = await apiClient.post('/v1/account/create', payload);
       setResponse(responseData);
       message.success('请求成功');
+      setActiveTab('response');
     } catch (error: any) {
       if (error.message?.includes('请先在页面配置后端地址')) {
         message.error('请先点击右上角“配置后端地址”按钮设置后端服务地址');
@@ -95,138 +98,127 @@ const CreateAccount: React.FC = () => {
         message.error(error.message || '请求失败');
         setResponse({ error: error.message });
       }
+      setActiveTab('response');
     } finally {
       setLoading(false);
     }
   };
 
-  // 复制 curl 命令
-  const copyCurl = () => {
-    const curl = `curl -X POST "${apiBaseURL}/v1/account/create" \\
-  -H "Content-Type: application/json" \\
-  -d '${JSON.stringify(form.getFieldsValue(), null, 2)}'`;
-    navigator.clipboard.writeText(curl);
-    message.success('cURL 命令已复制');
+  const handleReset = () => {
+    setRequestJson(JSON.stringify(defaultRequestJson, null, 2));
+    setJsonError(null);
+    setResponse(null);
+    setActiveTab('request');
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(requestJson);
+    message.success('请求 JSON 已复制');
+  };
+
+  const handleJsonChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setRequestJson(e.target.value);
+    try {
+      JSON.parse(e.target.value);
+      setJsonError(null);
+    } catch (err: any) {
+      setJsonError(err.message);
+    }
   };
 
   return (
-    <div>
-      <Card
-        title={
-          <Space>
-            <Tag color="green">POST</Tag>
-            <Text code>/v1/account/create</Text>
-            <Text type="secondary">创建新账户并返回账户ID</Text>
-          </Space>
-        }
-        extra={
-          <Button icon={<CopyOutlined />} onClick={copyCurl}>
-            复制 cURL
-          </Button>
-        }
-      >
-        {/* 请求参数表格 */}
-        <Title level={5}>REQUEST PARAMS</Title>
-        <Table
-          dataSource={paramDefinitions}
-          columns={columns}
-          pagination={false}
+    <Row gutter={24} style={{ height: '100%' }}>
+      {/* 左侧卡片：占满剩余高度，表格区域滚动仅当内容超出 */}
+      <Col xs={24} sm={24} md={14} lg={14} style={{ height: '100%' }}>
+        <Card
+          title="REQUEST PARAMS"
           size="small"
-          rowKey="name"
-          style={{ marginBottom: 24 }}
-        />
-
-        {/* 请求表单 */}
-        <Title level={5}>REQUEST</Title>
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={{
-            merchantId: 'MCH_20240101_001',
-            accountName: '张三',
-            accountType: 'PERSONAL',
-            idCardNo: '310xxxxxxxxxxxxxx',
-            bankCode: 'ICBC',
-            mobile: '138xxxxxxxx',
-          }}
+          style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+          bodyStyle={{ flex: 1, overflow: 'hidden', padding: '24px' }}
         >
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="merchantId"
-                label="merchantId"
-                rules={[{ required: true, message: '请输入商户ID' }]}
-              >
-                <Input placeholder="商户唯一标识符" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="accountName"
-                label="accountName"
-                rules={[{ required: true, message: '请输入账户姓名' }]}
-              >
-                <Input placeholder="账户持有人真实姓名" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="accountType" label="accountType">
-                <Select placeholder="选择账户类型">
-                  <Option value="PERSONAL">PERSONAL</Option>
-                  <Option value="ENTERPRISE">ENTERPRISE</Option>
-                  <Option value="VIRTUAL">VIRTUAL</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="idCardNo" label="idCardNo">
-                <Input placeholder="身份证号" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="bankCode" label="bankCode">
-                <Input placeholder="银行编码" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="mobile" label="mobile">
-                <Input placeholder="手机号" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item>
-            <Space>
-              <Button
-                type="primary"
-                icon={<SendOutlined />}
-                onClick={handleSubmit}
-                loading={loading}
-              >
-                发送请求
-              </Button>
-              <Button onClick={() => form.resetFields()}>重置</Button>
-            </Space>
-          </Form.Item>
-        </Form>
+          <div style={{ height: '100%', overflow: 'auto' }}>
+            <Table
+              dataSource={paramDefinitions}
+              columns={columns}
+              pagination={false}
+              size="small"
+              rowKey="name"
+              scroll={{ x: 'max-content' }}
+            />
+          </div>
+        </Card>
+      </Col>
 
-        {/* 响应结果 */}
-        {(response || loading) && (
-          <>
-            <Divider />
-            <Title level={5}>RESPONSE</Title>
-            {loading ? (
-              <Spin />
-            ) : (
-              <Card size="small">
-                <pre style={{ margin: 0, overflow: 'auto' }}>
-                  {JSON.stringify(response, null, 2)}
-                </pre>
-              </Card>
-            )}
-          </>
-        )}
-      </Card>
-    </div>
+      {/* 右侧卡片：Tabs 占满剩余高度 */}
+      <Col xs={24} sm={24} md={10} lg={10} style={{ height: '100%' }}>
+        <Card
+          title={
+            <Space>
+              <Tag color="green">POST</Tag>
+              <Text code>/v1/account/create</Text>
+              <Text type="secondary">创建新账户并返回账户ID</Text>
+            </Space>
+          }
+          extra={
+            <Button icon={<CopyOutlined />} onClick={handleCopy}>
+              复制 JSON
+            </Button>
+          }
+          style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+          bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '24px' }}
+        >
+          <Tabs
+            activeKey={activeTab}
+            onChange={setActiveTab}
+            style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+            tabBarStyle={{ marginBottom: 16 }}
+          >
+            <TabPane tab="REQUEST" key="request" style={{ flex: 1 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <TextArea
+                  rows={12}
+                  value={requestJson}
+                  onChange={handleJsonChange}
+                  style={{
+                    fontFamily: 'monospace',
+                    fontSize: 14,
+                    marginBottom: 16,
+                    borderColor: jsonError ? '#ff4d4f' : undefined,
+                  }}
+                  placeholder="请输入 JSON 格式的请求参数"
+                />
+                {jsonError && (
+                  <Text type="danger" style={{ display: 'block', marginBottom: 16 }}>
+                    格式错误：{jsonError}
+                  </Text>
+                )}
+                <Space>
+                  <Button type="primary" icon={<SendOutlined />} onClick={handleSubmit} loading={loading}>
+                    发送请求
+                  </Button>
+                  <Button icon={<ReloadOutlined />} onClick={handleReset}>
+                    重置
+                  </Button>
+                </Space>
+              </div>
+            </TabPane>
+            <TabPane tab="RESPONSE" key="response" style={{ flex: 1 }}>
+              <div style={{ height: '100%', overflow: 'auto' }}>
+                {loading ? (
+                  <Spin />
+                ) : response ? (
+                  <pre style={{ margin: 0, background: 'transparent' }}>
+                    {JSON.stringify(response, null, 2)}
+                  </pre>
+                ) : (
+                  <Text type="secondary">暂无响应，请发送请求</Text>
+                )}
+              </div>
+            </TabPane>
+          </Tabs>
+        </Card>
+      </Col>
+    </Row>
   );
 };
 
