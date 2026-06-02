@@ -12,16 +12,17 @@ import {
   Col,
   Tabs,
   Spin,
-  Input,
 } from 'antd';
-import { SendOutlined, CopyOutlined, ReloadOutlined } from '@ant-design/icons';
+import { SendOutlined, CopyOutlined, ReloadOutlined, FormatPainterOutlined } from '@ant-design/icons';
 import { useConfigStore } from '@/stores/configStore';
 import { getApiClient } from '@/api/client';
+import Editor from '@monaco-editor/react';
+import { useOutletContext } from 'react-router-dom';
 
-const { Title, Text } = Typography;
-const { TextArea } = Input;
+const { Text } = Typography;
 const { TabPane } = Tabs;
 
+// 表格列定义（保持不变）
 const columns = [
   { title: '参数名', dataIndex: 'name', key: 'name', width: 150 },
   { title: '类型', dataIndex: 'type', key: 'type', width: 100 },
@@ -66,6 +67,7 @@ const CreateAccount: React.FC = () => {
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('request');
   const { apiBaseURL } = useConfigStore();
+  const { isDarkMode } = useOutletContext<{ isDarkMode: boolean }>();
 
   const parseRequest = (): any => {
     try {
@@ -75,6 +77,19 @@ const CreateAccount: React.FC = () => {
     } catch (e: any) {
       setJsonError(e.message);
       return null;
+    }
+  };
+
+  // 格式化 JSON（自动美化）
+  const formatJson = () => {
+    try {
+      const parsed = JSON.parse(requestJson);
+      const formatted = JSON.stringify(parsed, null, 2);
+      setRequestJson(formatted);
+      setJsonError(null);
+      message.success('JSON 已格式化');
+    } catch (e: any) {
+      message.error('JSON 格式错误，无法格式化');
     }
   };
 
@@ -128,7 +143,7 @@ const CreateAccount: React.FC = () => {
 
   return (
     <Row gutter={24} style={{ height: '100%' }}>
-      {/* 左侧卡片：占满剩余高度，表格区域滚动仅当内容超出 */}
+      {/* 左侧卡片：参数说明表格 */}
       <Col xs={24} sm={24} md={14} lg={14} style={{ height: '100%' }}>
         <Card
           title="REQUEST PARAMS"
@@ -149,13 +164,13 @@ const CreateAccount: React.FC = () => {
         </Card>
       </Col>
 
-      {/* 右侧卡片：Tabs 占满剩余高度 */}
+      {/* 右侧卡片：JSON 编辑器 + 响应 */}
       <Col xs={24} sm={24} md={10} lg={10} style={{ height: '100%' }}>
         <Card
           title={
             <Space>
               <Tag color="green">POST</Tag>
-              <Text code>/v1/account/create</Text>
+              <Text>/v1/account/create</Text>
               <Text type="secondary">创建新账户并返回账户ID</Text>
             </Space>
           }
@@ -167,25 +182,21 @@ const CreateAccount: React.FC = () => {
           style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
           bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '24px' }}
         >
-          <Tabs
-            activeKey={activeTab}
-            onChange={setActiveTab}
-            style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
-            tabBarStyle={{ marginBottom: 16 }}
-          >
+          <Tabs activeKey={activeTab} onChange={setActiveTab} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             <TabPane tab="REQUEST" key="request" style={{ flex: 1 }}>
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                <TextArea
-                  rows={12}
+                <Editor
+                  height="300px"
+                  language="json"
                   value={requestJson}
-                  onChange={handleJsonChange}
-                  style={{
-                    fontFamily: 'monospace',
+                  onChange={(value) => handleJsonChange({ target: { value } } as any)}
+                  theme={isDarkMode ? 'vs-dark' : 'vs'}
+                  options={{
+                    minimap: { enabled: false },
                     fontSize: 14,
-                    marginBottom: 16,
-                    borderColor: jsonError ? '#ff4d4f' : undefined,
+                    formatOnPaste: true,
+                    automaticLayout: true,
                   }}
-                  placeholder="请输入 JSON 格式的请求参数"
                 />
                 {jsonError && (
                   <Text type="danger" style={{ display: 'block', marginBottom: 16 }}>
@@ -195,6 +206,9 @@ const CreateAccount: React.FC = () => {
                 <Space>
                   <Button type="primary" icon={<SendOutlined />} onClick={handleSubmit} loading={loading}>
                     发送请求
+                  </Button>
+                  <Button icon={<FormatPainterOutlined />} onClick={formatJson}>
+                    格式化
                   </Button>
                   <Button icon={<ReloadOutlined />} onClick={handleReset}>
                     重置
@@ -207,7 +221,7 @@ const CreateAccount: React.FC = () => {
                 {loading ? (
                   <Spin />
                 ) : response ? (
-                  <pre style={{ margin: 0, background: 'transparent' }}>
+                  <pre style={{ margin: 0, background: 'transparent', whiteSpace: 'pre-wrap' }}>
                     {JSON.stringify(response, null, 2)}
                   </pre>
                 ) : (

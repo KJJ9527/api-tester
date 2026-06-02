@@ -208,7 +208,7 @@ const AppLayout: React.FC = () => {
               <div style={{ padding: '16px 16px 0 16px' }}>
                 <Breadcrumb items={breadcrumbItems} />
               </div>
-              <Outlet />
+              <Outlet context={{ isDarkMode }} />
             </Content>
           </Layout>
         </Layout>
@@ -216,7 +216,7 @@ const AppLayout: React.FC = () => {
         <Footer style={{ textAlign: 'center', background: isDarkMode ? '#141414' : '#ffffff' }}>
           支付调试工具 ©{currentYear} - 技术对接专用
           <br />
-          <Text>by：柯建军</Text>
+          <Text>by：柯建军</Text>&nbsp;|&nbsp;
           <Text>v1.0.0</Text>
         </Footer>
       </Layout>
