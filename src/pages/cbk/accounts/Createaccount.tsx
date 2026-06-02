@@ -1,52 +1,48 @@
-// src/pages/cbk/accounts/CreateAccount.tsx
-import React, { useState } from 'react';
-import {
-  Card,
-  Button,
-  Table,
-  Tag,
-  Typography,
-  Space,
-  message,
-  Row,
-  Col,
-  Tabs,
-  Spin,
-} from 'antd';
-import { SendOutlined, CopyOutlined, ReloadOutlined, FormatPainterOutlined } from '@ant-design/icons';
-import { useConfigStore } from '@/stores/configStore';
-import { getApiClient } from '@/api/client';
-import Editor from '@monaco-editor/react';
-import { useOutletContext } from 'react-router-dom';
+import React from 'react';
+import ApiTester, { ParamDefinition } from '@/components/RequestTester';
 
-const { Text } = Typography;
-const { TabPane } = Tabs;
-
-// 表格列定义（保持不变）
-const columns = [
-  { title: '参数名', dataIndex: 'name', key: 'name', width: 150 },
-  { title: '类型', dataIndex: 'type', key: 'type', width: 100 },
+// 定义当前接口的参数表格数据
+const paramDefinitions: ParamDefinition[] = [
+  { name: 'api_ver', type: 'string', length: 3, required: '是', description: '接口内业务逻辑兼容号，固定值100' },
+  { name: 'inst_no', type: 'string', length: 8, required: '是', description: '机构编号，扫呗分配' },
+  { name: 'brand_no', type: 'enum', length: 8, required: '是', description: '品牌编号' },
+  { name: 'trace_no', type: 'string', length: 32, required: '是', description: '请求流水号，每次请求不可重复' },
+  { name: 'merchant_no', type: 'string', length: 15, required: '否', description: '扫呗商户号(传扫呗商户号,则基于该商户的主体资料开户,cust_type和cust_info不需要传)' },
+  { name: 'account_temp', type: 'string', length: 32, required: '否', description: '要复用资料开户的CBK账户' },
+  { name: 'cust_type', type: 'string', length: 1, required: '否', description: '开户类型 1企业，2个体工商户，3个人(小微商户)(不传商户号时,此字段必填)' },
   {
-    title: '必填',
-    dataIndex: 'required',
-    key: 'required',
-    width: 80,
-    render: (required: boolean) => (
-      <Tag color={required ? 'red' : 'default'}>{required ? '是' : '否'}</Tag>
-    ),
+    name: 'cust_info', type: 'string', length: 1024, required: '否', description: '开户信息，不传merchant_no时，需要使用资料开户（JSON字符串,需要转义）',
+    // 子表格的数据
+    childrenFields: [
+      { name: 'license_no', type: 'string', length: 32, required: '否', description: '营业执照号码,与企业证件类型对应的企业注册号(企业与个体户必传)' },
+      { name: 'license_name', type: 'string', length: 64, required: '否', description: '工商注册名称（与注册工商信息时一致）(企业与个体户必传)' },
+      { name: 'license_expire', type: 'string', length: 10, required: '否', description: '营业执照到期日（格式YYYY-MM-DD），如果证件到期日期为“长期”，则传：“2999-12-31”(企业与个体户必传)' },
+      { name: 'id_card_type', type: 'int', length: 32, required: '否', description: '身份证件类型 0身份证 1香港通行证 2澳门通行证 3台湾通行证，不传默认0' },
+      { name: 'legal_name', type: 'string', length: 32, required: '否', description: '法人姓名,用于实名认证企业的法人姓名（与注册工商信息时一致）(企业与个体户必传)' },
+      { name: 'legal_no', type: 'string', length: 20, required: '否', description: '法人证件号码,用于实名认证企业的法人身份证号码（与注册工商信息时一致）(企业与个体户必传)' },
+      { name: 'id_card_start_date', type: 'string', length: 10, required: '是', description: '证件发证日期 yyyy-MM-dd（企业与个体户传法人，小微传负责人）' },
+      { name: 'id_card_end_date', type: 'string', length: 10, required: '否', description: '证件到期日期 yyyy-MM-dd,如果证件到期日期为“长期”，则传：“2999-12-31”（企业与个体户传法人，小微传负责人）' },
+      { name: 'legal_phone', type: 'string', length: 11, required: '否', description: '法人联系电话(企业与个体户必传)' },
+      { name: 'account_type', type: 'string', length: 1, required: '是', description: '结算卡业务类型 枚举值：1：对公2：对私' },
+      { name: 'account_name', type: 'string', length: 32, required: '是', description: '结算卡开户姓名,绑定卡是对公卡，户名是企业名称，如果对私，户名是法人姓名（同一套资料开多个户时，需要设置merchant_name，且merchant_name名称不能重复）' },
+      {
+        name: 'merchant_name', type: 'string', length: 20, required: '是', description: 'CBK账户名称或者简称。当account_name长度大于20时必传该字段，否则会因为account_name过长报错；!注意：同一品牌下账户名称重复，或使用account_temp字段进行账户资料复用开户时必传，否则会报CBK名称已存在（一套资料创建多个账户时，可在CBK账户名称后增加数字或者其它简称）'
+      },
+      { name: 'account_cardno', type: 'string', length: 30, required: '是', description: '结算银行卡号' },
+      { name: 'account_phone', type: 'string', length: 11, required: '是', description: '结算卡银行预留手机号' },
+      { name: 'account_idnum', type: 'string', length: 20, required: '是', description: '结算卡身份证号' },
+      { name: 'bank_name', type: 'string', length: 64, required: '是', description: '开户支行名称' },
+      { name: 'bank_no', type: 'string', length: 25, required: '是', description: '支行编号。银行编号表下载.' },
+      { name: 'province_code', type: 'string', length: 8, required: '是', description: '银联省code 省市区编号表下载' },
+      { name: 'city_code', type: 'string', length: 8, required: '是', description: '银联市code' },
+      { name: 'county_code', type: 'string', length: 8, required: '是', description: '银联区code' },
+      { name: 'image_business_license', type: 'string', length: 255, required: '是', description: '营业执照图片url' },
+      { name: 'img_idcard_front', type: 'string', length: 255, required: '是', description: '身份证正面照url' },
+      { name: 'img_idcard_back', type: 'string', length: 255, required: '是', description: '身份证背面照url' },
+    ]
   },
-  { title: '描述', dataIndex: 'description', key: 'description' },
-];
-
-const paramDefinitions = [
-  { name: 'merchantId', type: 'string', required: true, description: '商户唯一标识符，由平台分配' },
-  { name: 'accountName', type: 'string', required: true, description: '账户持有人真实姓名' },
-  { name: 'accountType', type: 'enum', required: false, description: '账户类型：PERSONAL | ENTERPRISE | VIRTUAL' },
-  { name: 'idCardNo', type: 'string', required: false, description: '身份证号（个人账户时必填）' },
-  { name: 'bankCode', type: 'string', required: false, description: '银行编码，如 ICBC' },
-  { name: 'mobile', type: 'string', required: false, description: '手机号' },
-  { name: 'timestamp', type: 'number', required: true, description: 'Unix时间戳（毫秒）' },
-  { name: 'sign', type: 'string', required: true, description: '签名' },
+  { name: 'identity_id', type: 'string', length: 11, required: '否', description: '账户类型id，值见下方说明。不传默认使用：8' },
+  { name: 'key_sign', type: 'string', length: 32, required: '是', description: '签名检验串，点击查看签名算法' },
 ];
 
 const defaultRequestJson = {
@@ -61,178 +57,15 @@ const defaultRequestJson = {
 };
 
 const CreateAccount: React.FC = () => {
-  const [loading, setLoading] = useState(false);
-  const [response, setResponse] = useState<any>(null);
-  const [requestJson, setRequestJson] = useState(JSON.stringify(defaultRequestJson, null, 2));
-  const [jsonError, setJsonError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<string>('request');
-  const { apiBaseURL } = useConfigStore();
-  const { isDarkMode } = useOutletContext<{ isDarkMode: boolean }>();
-
-  const parseRequest = (): any => {
-    try {
-      const parsed = JSON.parse(requestJson);
-      setJsonError(null);
-      return parsed;
-    } catch (e: any) {
-      setJsonError(e.message);
-      return null;
-    }
-  };
-
-  // 格式化 JSON（自动美化）
-  const formatJson = () => {
-    try {
-      const parsed = JSON.parse(requestJson);
-      const formatted = JSON.stringify(parsed, null, 2);
-      setRequestJson(formatted);
-      setJsonError(null);
-      message.success('JSON 已格式化');
-    } catch (e: any) {
-      message.error('JSON 格式错误，无法格式化');
-    }
-  };
-
-  const handleSubmit = async () => {
-    const payload = parseRequest();
-    if (!payload) {
-      message.error('请求 JSON 格式错误，请修正后重试');
-      return;
-    }
-    try {
-      const apiClient = getApiClient();
-      setLoading(true);
-      const responseData = await apiClient.post('/v1/account/create', payload);
-      setResponse(responseData);
-      message.success('请求成功');
-      setActiveTab('response');
-    } catch (error: any) {
-      if (error.message?.includes('请先在页面配置后端地址')) {
-        message.error('请先点击右上角“配置后端地址”按钮设置后端服务地址');
-      } else {
-        message.error(error.message || '请求失败');
-        setResponse({ error: error.message });
-      }
-      setActiveTab('response');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleReset = () => {
-    setRequestJson(JSON.stringify(defaultRequestJson, null, 2));
-    setJsonError(null);
-    setResponse(null);
-    setActiveTab('request');
-  };
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(requestJson);
-    message.success('请求 JSON 已复制');
-  };
-
-  const handleJsonChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setRequestJson(e.target.value);
-    try {
-      JSON.parse(e.target.value);
-      setJsonError(null);
-    } catch (err: any) {
-      setJsonError(err.message);
-    }
-  };
-
   return (
-    <Row gutter={24} style={{ height: '100%' }}>
-      {/* 左侧卡片：参数说明表格 */}
-      <Col xs={24} sm={24} md={14} lg={14} style={{ height: '100%' }}>
-        <Card
-          title="REQUEST PARAMS"
-          size="small"
-          style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-          bodyStyle={{ flex: 1, overflow: 'hidden', padding: '24px' }}
-        >
-          <div style={{ height: '100%', overflow: 'auto' }}>
-            <Table
-              dataSource={paramDefinitions}
-              columns={columns}
-              pagination={false}
-              size="small"
-              rowKey="name"
-              scroll={{ x: 'max-content' }}
-            />
-          </div>
-        </Card>
-      </Col>
-
-      {/* 右侧卡片：JSON 编辑器 + 响应 */}
-      <Col xs={24} sm={24} md={10} lg={10} style={{ height: '100%' }}>
-        <Card
-          title={
-            <Space>
-              <Tag color="green">POST</Tag>
-              <Text>/v1/account/create</Text>
-              <Text type="secondary">创建新账户并返回账户ID</Text>
-            </Space>
-          }
-          extra={
-            <Button icon={<CopyOutlined />} onClick={handleCopy}>
-              复制 JSON
-            </Button>
-          }
-          style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-          bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '24px' }}
-        >
-          <Tabs activeKey={activeTab} onChange={setActiveTab} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            <TabPane tab="REQUEST" key="request" style={{ flex: 1 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                <Editor
-                  height="300px"
-                  language="json"
-                  value={requestJson}
-                  onChange={(value) => handleJsonChange({ target: { value } } as any)}
-                  theme={isDarkMode ? 'vs-dark' : 'vs'}
-                  options={{
-                    minimap: { enabled: false },
-                    fontSize: 14,
-                    formatOnPaste: true,
-                    automaticLayout: true,
-                  }}
-                />
-                {jsonError && (
-                  <Text type="danger" style={{ display: 'block', marginBottom: 16 }}>
-                    格式错误：{jsonError}
-                  </Text>
-                )}
-                <Space>
-                  <Button type="primary" icon={<SendOutlined />} onClick={handleSubmit} loading={loading}>
-                    发送请求
-                  </Button>
-                  <Button icon={<FormatPainterOutlined />} onClick={formatJson}>
-                    格式化
-                  </Button>
-                  <Button icon={<ReloadOutlined />} onClick={handleReset}>
-                    重置
-                  </Button>
-                </Space>
-              </div>
-            </TabPane>
-            <TabPane tab="RESPONSE" key="response" style={{ flex: 1 }}>
-              <div style={{ height: '100%', overflow: 'auto' }}>
-                {loading ? (
-                  <Spin />
-                ) : response ? (
-                  <pre style={{ margin: 0, background: 'transparent', whiteSpace: 'pre-wrap' }}>
-                    {JSON.stringify(response, null, 2)}
-                  </pre>
-                ) : (
-                  <Text type="secondary">暂无响应，请发送请求</Text>
-                )}
-              </div>
-            </TabPane>
-          </Tabs>
-        </Card>
-      </Col>
-    </Row>
+    <ApiTester
+      title="账户开户"
+      method="POST"
+      path="/account/open/createaccount"
+      description="创建CBK账户并返回账户ID"
+      paramDefinitions={paramDefinitions}
+      defaultRequestJson={defaultRequestJson}
+    />
   );
 };
 

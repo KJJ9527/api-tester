@@ -1,9 +1,9 @@
 // src/components/Layout/index.tsx
 import React, { useEffect, useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Layout, Menu, theme, Tabs, Select, Switch, Space, Typography, ConfigProvider, theme as antdTheme, Breadcrumb } from 'antd';
+import { Layout, Menu, Tabs, Select, Switch, Space, Typography, ConfigProvider, theme as antdTheme, Breadcrumb } from 'antd';
 import { BulbOutlined, BulbFilled } from '@ant-design/icons';
-import ConfigPanel from '@/components/ConfigPanel';
+import ConfigPanel from '@/components/Config/ConfigPanel';
 import { segmentedOptions } from './menuConfig';
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -214,7 +214,7 @@ const AppLayout: React.FC = () => {
         </Layout>
 
         <Footer style={{ textAlign: 'center', background: isDarkMode ? '#141414' : '#ffffff' }}>
-          支付调试工具 ©{currentYear} - 技术对接专用
+          利楚接口调试工具 ©{currentYear}
           <br />
           <Text>by：柯建军</Text>&nbsp;|&nbsp;
           <Text>v1.0.0</Text>
