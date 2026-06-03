@@ -15,7 +15,7 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': {
-        target: 'https://your-payment-gateway.com', // 替换为实际后端
+        target: 'http://mch.lcsw.cn/lcsw', // 替换为实际后端
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

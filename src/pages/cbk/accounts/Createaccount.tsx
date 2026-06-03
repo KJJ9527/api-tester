@@ -1,5 +1,8 @@
-import React from 'react';
+// CBK账户开户接口的测试页面，包含参数表格和动态默认 JSON 数据生成
+
+import React, { useMemo } from 'react';
 import ApiTester, { ParamDefinition } from '@/components/RequestTester';
+import { v4 as uuidv4 } from 'uuid';
 
 // 定义当前接口的参数表格数据
 const paramDefinitions: ParamDefinition[] = [
@@ -41,30 +44,79 @@ const paramDefinitions: ParamDefinition[] = [
       { name: 'img_idcard_back', type: 'string', length: 255, required: '是', description: '身份证背面照url' },
     ]
   },
-  { name: 'identity_id', type: 'string', length: 11, required: '否', description: '账户类型id，值见下方说明。不传默认使用：8' },
+  {
+    name: 'identity_id', type: 'string', length: 11, required: '否', description: '账户类型id，值见下方说明。不传默认使用：8',
+    customChildrenData: [
+      { id: '6', name: '入账方', description: '仅能入账和提现，不能分账' },
+      { id: '8', name: '门店', description: '能入账、分账、提现。优先使用该类型' },
+      { id: '16', name: '归集商户', description: '富友归集场景可用，其它分账通道不可用。不能出账、不能入账，资金仅能被归集到总户' },
+      { id: '', name: '品牌储值、直营门店、联营门店，等等', description: '若有使用其它类型的需求，先和分账项目经理确认品牌在使用的类型，再获取对应类型id' },
+    ],
+    subColumns: [
+      { title: '账户类型id', dataIndex: 'id', key: 'id', width: 100 },
+      { title: '账户类型名称', dataIndex: 'name', key: 'name', width: 150 },
+      { title: '描述', dataIndex: 'description', key: 'description' },
+    ],
+  },
   { name: 'key_sign', type: 'string', length: 32, required: '是', description: '签名检验串，点击查看签名算法' },
 ];
 
-const defaultRequestJson = {
-  merchantId: 'MCH_20240101_001',
-  accountName: '张三',
-  accountType: 'PERSONAL',
-  idCardNo: '310xxxxxxxxxxxxxx',
-  bankCode: 'ICBC',
-  mobile: '138xxxxxxxx',
-  timestamp: 1704067200000,
-  sign: 'A3F2...8C1D',
-};
+// 生成动态默认 JSON 的函数
+const getDynamicDefaultRequestJson = () => {
+
+  const trace_no = uuidv4().replace(/-/g, '');
+
+  return {
+    api_ver: '100',
+    inst_no: '52101549',
+    brand_no: '60898677',
+    trace_no,
+    merchant_no: '',
+    account_temp: '',
+    cust_type: '1',
+    cust_info: {   // 对象形式，编辑器会展示为多行
+      license_no: '9144010155235195XR',
+      license_name: '广州市番禺区老湘村餐馆',
+      license_expire: '2099-12-31',
+      legal_name: '易丹',
+      legal_no: '540329197712286446',
+      id_card_start_date: '2020-01-01',
+      id_card_end_date: '2999-12-31',
+      legal_phone: '15196529736',
+      account_type: '1',
+      account_name: '广州市番禺区老湘村餐馆',
+      merchant_name: '广州市番禺区老湘村餐馆123',
+      account_cardno: '8110701014001268543',
+      account_phone: '15196529736',
+      account_idnum: '540329197712286446',
+      bank_name: '中信银行',
+      bank_no: '302100011000',
+      province_code: '110',
+      city_code: '1000',
+      county_code: '1001',
+      image_business_license: '',
+      img_idcard_front: '',
+      img_idcard_back: '',
+    },
+    identity_id: '',
+    key_sign: '',
+  };
+}
+
+
+
 
 const CreateAccount: React.FC = () => {
+  const defaultRequestJson = useMemo(() => getDynamicDefaultRequestJson(), []);
   return (
     <ApiTester
       title="账户开户"
       method="POST"
       path="/account/open/createaccount"
-      description="创建CBK账户并返回账户ID"
+      description="创建CBK账户并返回账户账号"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
+      stringifyFields={['cust_info']} // 指定需要转为字符串的字段
     />
   );
 };

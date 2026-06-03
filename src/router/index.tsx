@@ -18,7 +18,7 @@ export const router = createBrowserRouter([
 
       { path: 'cbk/account/createaccount', element: <CreateAccount /> },
 
-      { path: 'cbk/account/open', element: <Openaccount /> },
+      { path: 'cbk/account/openaccount', element: <Openaccount /> },
 
       { path: 'cbk/bill/query', element: <AccountAuthentication /> },
     ],

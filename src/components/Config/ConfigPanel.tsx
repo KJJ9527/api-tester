@@ -1,42 +1,50 @@
 // src/components/ConfigPanel.tsx
-import { Modal, Input, Button, message } from 'antd';
-import { useConfigStore } from '@/stores/configStore';
+import { Button, Modal, Input, message, Space, Divider } from 'antd';
 import { useState } from 'react';
+import { useConfigStore } from '@/stores/configStore';
 
 export default function ConfigPanel() {
-  const { apiBaseURL, setApiBaseURL } = useConfigStore();
-  const [tempURL, setTempURL] = useState(apiBaseURL);
+  const { apiBaseURL, secretKey, setApiBaseURL, setSecretKey } = useConfigStore();
   const [open, setOpen] = useState(false);
+  const [tempApiURL, setTempApiURL] = useState(apiBaseURL);
+  const [tempSecretKey, setTempSecretKey] = useState(secretKey);
 
   const handleSave = () => {
-    if (!tempURL) {
+    if (!tempApiURL) {
       message.error('请输入后端地址');
       return;
     }
-    setApiBaseURL(tempURL);
-    message.success('已保存，后续请求将使用新地址');
+    setApiBaseURL(tempApiURL);
+    setSecretKey(tempSecretKey);
+    message.success('配置已保存');
     setOpen(false);
   };
 
   return (
     <>
-      <Button type="link" onClick={() => setOpen(true)}>
-        配置后端地址
+      <Button type="primary" onClick={() => setOpen(true)}>
+        基础配置
       </Button>
-      <Modal
-        title="设置后端 API 地址"
-        open={open}
-        onOk={handleSave}
-        onCancel={() => setOpen(false)}
-      >
-        <Input
-          placeholder="例如 https://api.pay.com/v1"
-          value={tempURL}
-          onChange={(e) => setTempURL(e.target.value)}
-        />
-        <div style={{ marginTop: 8, color: '#999' }}>
-          当前地址：{apiBaseURL || '未配置'}
-        </div>
+      <Modal title="系统配置" open={open} onOk={handleSave} onCancel={() => setOpen(false)} width={500}>
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <div>
+            <div>后端 API 地址</div>
+            <Input
+              placeholder="例如 https://api.pay.com/v1"
+              value={tempApiURL}
+              onChange={(e) => setTempApiURL(e.target.value)}
+            />
+          </div>
+          <Divider />
+          <div>
+            <div>签名密钥 (Secret Key)</div>
+            <Input.Password
+              placeholder="用于 MD5 签名的密钥"
+              value={tempSecretKey}
+              onChange={(e) => setTempSecretKey(e.target.value)}
+            />
+          </div>
+        </Space>
       </Modal>
     </>
   );

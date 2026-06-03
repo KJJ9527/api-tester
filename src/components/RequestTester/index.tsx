@@ -17,6 +17,7 @@ import { useOutletContext } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import { useConfigStore } from '@/stores/configStore';
 import { getApiClient } from '@/api/client';
+import MD5 from 'crypto-js/md5';
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -29,6 +30,8 @@ export interface ParamDefinition {
   required: string; // 'true' | 'false' | 'conditional'
   description: string;
   childrenFields?: ParamDefinition[]; // 可选的子表格数据
+  customChildrenData?: any[]; // 可选的自定义子表格数据
+  subColumns?: any[];                        // 新增：自定义子表格列定义
 }
 
 // 组件 Props
@@ -39,6 +42,7 @@ interface ApiTesterProps {
   description?: string;              // 接口描述
   paramDefinitions: ParamDefinition[]; // 参数表格数据
   defaultRequestJson: Record<string, any>; // 默认请求 JSON
+  stringifyFields?: string[];  // 新增：需要转换为 JSON 字符串的字段名数组
 }
 
 const ApiTester: React.FC<ApiTesterProps> = ({
@@ -47,6 +51,7 @@ const ApiTester: React.FC<ApiTesterProps> = ({
   description,
   paramDefinitions,
   defaultRequestJson,
+  stringifyFields,
 }) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any>(null);
@@ -56,16 +61,19 @@ const ApiTester: React.FC<ApiTesterProps> = ({
   const { apiBaseURL } = useConfigStore();
   const { isDarkMode } = useOutletContext<{ isDarkMode: boolean }>();
 
+  // 开发环境强制使用 /api 作为显示地址，生产环境使用用户配置的真实地址
+  const displayBaseURL = import.meta.env.DEV ? '/api' : apiBaseURL;
+
   // 表格列定义
   const columns = [
-    { title: '参数名', dataIndex: 'name', key: 'name', width: 150 },
+    { title: '参数名', dataIndex: 'name', key: 'name', width: 120 },
     { title: '类型', dataIndex: 'type', key: 'type', width: 100 },
-    { title: '长度', dataIndex: 'length', key: 'length', width: 100 },
+    { title: '长度', dataIndex: 'length', key: 'length', width: 50 },
     {
       title: '必填',
       dataIndex: 'required',
       key: 'required',
-      width: 80,
+      width: 50,
       render: (required: string) => {
         const colorMap: Record<string, string> = {
           '是': 'red',
@@ -75,7 +83,27 @@ const ApiTester: React.FC<ApiTesterProps> = ({
         return <Tag color={colorMap[required] || 'default'}>{required}</Tag>;
       },
     },
-    { title: '描述', dataIndex: 'description', key: 'description' },
+    {
+      title: '描述',
+      dataIndex: 'description',
+      key: 'description',
+      render: (text: string, record: ParamDefinition) => {
+        // 针对 key_sign 字段，将描述中的“点击查看签名算法”转换为链接
+        if (record.name === 'key_sign' && text.includes('点击查看签名算法')) {
+          // 替换成实际签名算法页面的 URL
+          const signAlgorithmUrl = 'https://help.lcsw.cn/xrmpic/tisnldchblgxohfl/rinsc3#title-node6'; // 修改为真实地址
+          return (
+            <span>
+              签名检验串，
+              <a href={signAlgorithmUrl} target="_blank" rel="noopener noreferrer">
+                点击查看签名算法
+              </a>
+            </span>
+          );
+        }
+        return text;
+      },
+    },
   ];
 
   const parseRequest = (): any => {
@@ -101,30 +129,89 @@ const ApiTester: React.FC<ApiTesterProps> = ({
     }
   };
 
+  // 字典序排序并拼接字符串
+  const sortAndConcat = (obj: Record<string, any>): string => {
+    const keys = Object.keys(obj).sort(); // 字典序升序
+    const parts: string[] = [];
+    for (const key of keys) {
+      if (key === 'key_sign') continue; // 签名本身不参与签名
+      let value = obj[key];
+      if (value !== undefined && value !== null) {
+        if (typeof value === 'object') {
+          value = JSON.stringify(value);
+        } else {
+          value = String(value);
+        }
+        parts.push(`${key}=${value}`);
+      }
+    }
+    return parts.join('&');
+  };
+
+  // 生成 MD5 签名
+  const generateSign = (payload: Record<string, any>, secretKey: string): string => {
+    const baseString = sortAndConcat(payload);
+    // 判断是否存在非空的 inst_no 字段
+    const hasInstNo = payload.hasOwnProperty('inst_no') && payload.inst_no && payload.inst_no !== '';
+    const suffix = hasInstNo ? `&key=${secretKey}` : `&access_token=${secretKey}`;
+    const signString = baseString + suffix;
+    return MD5(signString).toString();
+  };
+
   const handleSubmit = async () => {
-    const payload = parseRequest();
+    let payload = parseRequest();
     if (!payload) {
       message.error('请求 JSON 格式错误，请修正后重试');
       return;
     }
-    if (!apiBaseURL) {
+
+    // 开发环境自动使用代理，不依赖用户配置的绝对地址
+    const isDev = import.meta.env.DEV;
+    if (!isDev && !apiBaseURL) {
       message.error('请先点击右上角“配置后端地址”按钮设置后端服务地址');
       return;
     }
+
+    // 1. 对需要字符串化的字段进行处理（例如 cust_info）
+    if (stringifyFields && stringifyFields.length) {
+      // 浅拷贝，避免修改原对象（parseRequest 返回的是新对象，但拷贝更安全）
+      payload = { ...payload };
+      for (const field of stringifyFields) {
+        const value = payload[field];
+        // 如果字段存在且是对象（不是 null）且不是字符串，则转为 JSON 字符串
+        if (value !== undefined && value !== null && typeof value === 'object' && !(value instanceof Date)) {
+          payload[field] = JSON.stringify(value);
+        }
+      }
+    }
+
+    // 2. 获取签名密钥并生成签名
+    const { secretKey } = useConfigStore.getState();
+    if (!secretKey) {
+      message.error('请先在配置中填写签名密钥 (Secret Key)');
+      return;
+    }
+    const sign = generateSign(payload, secretKey);
+    payload.key_sign = sign;
+
     try {
       const apiClient = getApiClient();
       setLoading(true);
       const responseData = await apiClient.request({
         method,
-        url: apiBaseURL + path,
+        url: path,
         data: payload,
       });
-      setResponse(responseData);
+      setResponse(responseData.data);
       message.success('请求成功');
       setActiveTab('response');
     } catch (error: any) {
-      message.error(error.message || '请求失败');
-      setResponse({ error: error.message });
+      // 提取错误信息
+      const backendError = error.response?.data;
+      const errorMsg = backendError?.return_msg || error.message || '请求失败';
+      message.error(errorMsg);
+      // 也可以展示后端返回的错误详情
+      setResponse(backendError || { error: errorMsg });
       setActiveTab('response');
     } finally {
       setLoading(false);
@@ -162,6 +249,7 @@ const ApiTester: React.FC<ApiTesterProps> = ({
           title="REQUEST PARAMS"
           style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
           bodyStyle={{ flex: 1, overflow: 'hidden', padding: '24px' }}
+
         >
           <div style={{ height: '100%', overflow: 'auto', minHeight: 0 }}>
             <Table
@@ -172,21 +260,24 @@ const ApiTester: React.FC<ApiTesterProps> = ({
               rowKey="name"
               scroll={{ x: 'max-content' }}
               expandable={{
-                // 有 childrenFields 的行才能展开
-                rowExpandable: (record) => !!record.childrenFields && record.childrenFields.length > 0,
-                // 展开后渲染的子表格
-                expandedRowRender: (record) => (
-                  <div style={{ paddingLeft: 24 }}>
-                    <Table
-                      dataSource={record.childrenFields || []}
-                      columns={columns}   // 复用相同的列定义
-                      pagination={false}
-                      size="small"
-                      rowKey="name"
-                      scroll={{ x: 'max-content', y: 300 }}   // 增加垂直滚动，高度300px
-                    />
-                  </div>
-                ),
+                rowExpandable: (record) => !!(record.customChildrenData?.length || record.childrenFields?.length),
+                expandedRowRender: (record) => {
+                  const dataSource = record.customChildrenData || record.childrenFields || [];
+                  const cols = record.subColumns || columns;
+                  if (!dataSource.length) return null;
+                  return (
+                    <div style={{ paddingLeft: 24 }}>
+                      <Table
+                        dataSource={dataSource}
+                        columns={cols}
+                        pagination={false}
+                        size="small"
+                        rowKey={(record, idx) => idx.toString()}
+                        scroll={{ x: 'max-content', y: '300px' }}
+                      />
+                    </div>
+                  );
+                },
               }}
             />
           </div>
@@ -234,26 +325,6 @@ const ApiTester: React.FC<ApiTesterProps> = ({
                     格式错误：{jsonError}
                   </Text>
                 )}
-                <Space style={{ display: 'flex', marginTop: 16 }}>
-                  {apiBaseURL ? (
-                    <Text copyable style={{ fontSize: 14 }}>
-                      {`${apiBaseURL.replace(/\/$/, '')}${path.startsWith('/') ? path : `/${path}`}`}
-                    </Text>
-                  ) : (
-                    <Text type="danger" style={{ fontSize: 12 }}>
-                      未配置后端地址
-                    </Text>
-                  )}
-                  <Button icon={<FormatPainterOutlined />} onClick={formatJson}>
-                    格式化
-                  </Button>
-                  <Button icon={<ReloadOutlined />} onClick={handleReset}>
-                    重置
-                  </Button>
-                  <Button icon={<SendOutlined />} type="primary" onClick={handleSubmit} loading={loading}>
-                    发送请求
-                  </Button>
-                </Space>
               </div>
             </TabPane>
             <TabPane tab="RESPONSE" key="response" style={{ flex: 1 }}>
@@ -261,15 +332,49 @@ const ApiTester: React.FC<ApiTesterProps> = ({
                 {loading ? (
                   <Spin />
                 ) : response ? (
-                  <pre style={{ margin: 0, background: 'transparent', whiteSpace: 'pre-wrap' }}>
-                    {JSON.stringify(response, null, 2)}
-                  </pre>
+                  <Editor
+                    height="500px"
+                    language="json"
+                    value={JSON.stringify(response, null, 2)}
+                    theme={isDarkMode ? 'vs-dark' : 'vs'}
+                    options={{
+                      readOnly: true,
+                      minimap: { enabled: false },
+                      fontSize: 14,
+                      fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                      automaticLayout: true,
+                      scrollBeyondLastLine: false,
+                    }}
+                  />
                 ) : (
                   <Text type="secondary">暂无响应，请发送请求</Text>
                 )}
               </div>
             </TabPane>
           </Tabs>
+          {/* 底部按钮区域 - 固定高度，不随 Tab 切换变化 */}
+          <div style={{ marginTop: 16, borderTop: `1px solid ${isDarkMode ? '#303030' : '#f0f0f0'}`, paddingTop: 16 }}>
+            <Space style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {displayBaseURL ? (
+                <Text copyable style={{ fontSize: 14 }}>
+                  {`${displayBaseURL.replace(/\/$/, '')}${path.startsWith('/') ? path : `/${path}`}`}
+                </Text>
+              ) : (
+                <Text type="danger" style={{ fontSize: 12 }}>
+                  未配置后端地址
+                </Text>
+              )}
+              <Button icon={<FormatPainterOutlined />} onClick={formatJson}>
+                格式化
+              </Button>
+              <Button icon={<ReloadOutlined />} onClick={handleReset}>
+                重置
+              </Button>
+              <Button icon={<SendOutlined />} type="primary" onClick={handleSubmit} loading={loading}>
+                发送请求
+              </Button>
+            </Space>
+          </div>
         </Card>
       </Col>
     </Row>
