@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Card,
   Button,
@@ -158,6 +158,19 @@ const ApiTester: React.FC<ApiTesterProps> = ({
     return MD5(signString).toString();
   };
 
+  // 在组件内部，计算允许的字段名列表（使用 useMemo 优化）
+  const allowedFieldNames = useMemo(() => paramDefinitions.map(def => def.name), [paramDefinitions]);
+
+  // 校验函数
+  const validatePayloadFields = (payload: Record<string, any>): boolean => {
+    const extraFields = Object.keys(payload).filter(key => !allowedFieldNames.includes(key));
+    if (extraFields.length > 0) {
+      message.error(`JSON 数据包含不支持的字段：${extraFields.join(', ')}`);
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async () => {
     let payload = parseRequest();
     if (!payload) {
@@ -169,6 +182,11 @@ const ApiTester: React.FC<ApiTesterProps> = ({
     const isDev = import.meta.env.DEV;
     if (!isDev && !apiBaseURL) {
       message.error('请先点击右上角“配置后端地址”按钮设置后端服务地址');
+      return;
+    }
+
+    // 校验字段
+    if (!validatePayloadFields(payload)) {
       return;
     }
 
