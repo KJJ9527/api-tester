@@ -1,4 +1,4 @@
-// CBK账户激活接口的测试页面，包含参数表格和动态默认 JSON 数据生成
+// CBK添加分账关系接口
 
 import React, { useMemo } from 'react';
 import ApiTester, { ParamDefinition } from '@/components/RequestTester';
@@ -9,8 +9,8 @@ const paramDefinitions: ParamDefinition[] = [
   { name: 'api_ver', type: 'string', length: 3, required: '是', description: '接口内业务逻辑兼容号，固定值100' },
   { name: 'inst_no', type: 'string', length: 8, required: '是', description: '机构编号，扫呗分配' },
   { name: 'trace_no', type: 'string', length: 32, required: '是', description: '请求流水号，每次请求不可重复' },
-  { name: 'account_no_out', type: 'string', length: 32, required: '条件必填', description: '出账方CBK账号(扫呗商户号、CBK账号二选一)' },
-  { name: 'merchant_no', type: 'string', length: 15, required: '条件必填', description: '出账方扫呗商户号(扫呗商户号、CBK账号二选一)' },
+  { name: 'account_no_out', type: 'string', length: 32, required: '条件必填', description: '出账方CBK账号(与扫呗商户号账号二选一)' },
+  { name: 'merchant_no', type: 'string', length: 15, required: '条件必填', description: '出账方扫呗商户号(与CBK账号账号二选一)' },
   {
     name: 'account_rule', type: 'string', length: 1024, required: '是', description: '分账规则,Json格式',
     childrenFields:
@@ -57,13 +57,12 @@ const AddAccountIn: React.FC = () => {
   const defaultRequestJson = useMemo(() => getDynamicDefaultRequestJson(), []);
   return (
     <ApiTester
-      title="添加分账关系"
       method="POST"
       path="/account/open/addAccountIn"
-      description="创建CBK账户并返回账户账号"
+      description="添加CBK分账关系"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
-      stringifyFields={['cust_info']} // 指定需要转为字符串的字段
+      stringifyFields={['account_rule']} // 指定需要转为字符串的字段
     />
   );
 };

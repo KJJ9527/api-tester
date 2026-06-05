@@ -36,7 +36,6 @@ export interface ParamDefinition {
 
 // 组件 Props
 interface ApiTesterProps {
-  title: string;                     // 卡片标题（如 "POST /v1/account/create"）
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE'; // 请求方法，默认 POST
   path: string;                     // 请求路径
   description?: string;              // 接口描述
@@ -291,7 +290,7 @@ const ApiTester: React.FC<ApiTesterProps> = ({
                         pagination={false}
                         size="small"
                         rowKey={(record, idx) => idx.toString()}
-                        scroll={{ x: 'max-content', y: '300px' }}
+                        scroll={{ x: '600px', y: '300px' }}
                       />
                     </div>
                   );

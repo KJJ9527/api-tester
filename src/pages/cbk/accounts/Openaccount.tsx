@@ -1,4 +1,4 @@
-// CBK账户激活接口的测试页面，包含参数表格和动态默认 JSON 数据生成
+// CBK账户激活接口
 
 import React, { useMemo } from 'react';
 import ApiTester, { ParamDefinition } from '@/components/RequestTester';
@@ -42,13 +42,11 @@ const Openaccount: React.FC = () => {
   const defaultRequestJson = useMemo(() => getDynamicDefaultRequestJson(), []);
   return (
     <ApiTester
-      title="账户开户"
       method="POST"
       path="/account/open/openaccount"
-      description="创建CBK账户并返回账户账号"
+      description="平安、中信分账通道时，需要调用该接口，进行账户的激活开通"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
-      stringifyFields={['cust_info']} // 指定需要转为字符串的字段
     />
   );
 };

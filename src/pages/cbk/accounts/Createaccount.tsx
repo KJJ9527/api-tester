@@ -1,4 +1,4 @@
-// CBK账户开户接口的测试页面，包含参数表格和动态默认 JSON 数据生成
+// CBK账户开户接口
 
 import React, { useMemo } from 'react';
 import ApiTester, { ParamDefinition } from '@/components/RequestTester';
@@ -110,7 +110,6 @@ const CreateAccount: React.FC = () => {
   const defaultRequestJson = useMemo(() => getDynamicDefaultRequestJson(), []);
   return (
     <ApiTester
-      title="账户开户"
       method="POST"
       path="/account/open/createaccount"
       description="创建CBK账户并返回账户账号"
