@@ -11,6 +11,9 @@ import Queryaccount from '@/pages/cbk/accounts/Queryaccount';
 import Querybalance from '@/pages/cbk/accounts/Querybalance';
 import Updateaccount from '@/pages/cbk/accounts/Updateaccount';
 import QueryAccountIn from '@/pages/cbk/accounts/QueryAccountIn';
+import Bill from '@/pages/cbk/bills/Bill';
+import BillBalance from '@/pages/cbk/bills/BillBalance';
+import Dotrans from '@/pages/cbk/trade/Dotrans';
 
 
 export const router = createBrowserRouter([
@@ -28,6 +31,11 @@ export const router = createBrowserRouter([
       { path: 'cbk/account/querybalance', element: <Querybalance /> },
       { path: 'cbk/account/updateaccount', element: <Updateaccount /> },
       { path: 'cbk/account/queryAccountIn', element: <QueryAccountIn /> },
+      // 账单接口
+      { path: 'cbk/bill/bill', element: <Bill /> },
+      { path: 'cbk/bill/billbalance', element: <BillBalance /> },
+      // 交易接口
+      { path: 'cbk/trade/dotrans', element: <Dotrans /> },
     ],
   },
 ]);

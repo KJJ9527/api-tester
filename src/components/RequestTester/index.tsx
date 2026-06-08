@@ -60,9 +60,6 @@ const ApiTester: React.FC<ApiTesterProps> = ({
   const { apiBaseURL } = useConfigStore();
   const { isDarkMode } = useOutletContext<{ isDarkMode: boolean }>();
 
-  // 开发环境强制使用 /api 作为显示地址，生产环境使用用户配置的真实地址
-  const displayBaseURL = import.meta.env.DEV ? '/api' : apiBaseURL;
-
   // 表格列定义
   const columns = [
     { title: '参数名', dataIndex: 'name', key: 'name', width: 120 },
@@ -307,7 +304,7 @@ const ApiTester: React.FC<ApiTesterProps> = ({
           title={
             <Space>
               <Tag color={method === 'POST' ? 'green' : 'blue'}>{method}</Tag>
-              <Text>{path}</Text>
+              <Text copyable>{path}</Text>
               {description && <Text type="secondary">{description}</Text>}
             </Space>
           }
@@ -371,16 +368,7 @@ const ApiTester: React.FC<ApiTesterProps> = ({
           </Tabs>
           {/* 底部按钮区域 - 固定高度，不随 Tab 切换变化 */}
           <div style={{ marginTop: 16, borderTop: `1px solid ${isDarkMode ? '#303030' : '#f0f0f0'}`, paddingTop: 16 }}>
-            <Space style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {displayBaseURL ? (
-                <Text copyable style={{ fontSize: 14 }}>
-                  {`${displayBaseURL.replace(/\/$/, '')}${path.startsWith('/') ? path : `/${path}`}`}
-                </Text>
-              ) : (
-                <Text type="danger" style={{ fontSize: 12 }}>
-                  未配置后端地址
-                </Text>
-              )}
+            <Space style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'flex-end' }}>
               <Button icon={<FormatPainterOutlined />} onClick={formatJson}>
                 格式化
               </Button>

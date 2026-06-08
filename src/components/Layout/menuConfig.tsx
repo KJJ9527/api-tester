@@ -45,8 +45,16 @@ export const segmentedOptions: SegmentedOption[] = [
         key: 'billApis',
         label: '账单接口',
         sidebarMenus: [
-          { key: 'billQuery', label: '账单查询', path: '/cbk/bill/query' },
-          { key: 'billDownload', label: '账单下载', path: '/cbk/bill/download' },
+          { key: 'billDownload', label: '分账数据对账单下载', path: '/cbk/bill/bill' },
+          { key: 'billBalanceDownload', label: '日终余额对账单下载', path: '/cbk/bill/billBalance' },
+        ],
+      },
+      {
+        key: 'tradeApis',
+        label: '交易接口',
+        sidebarMenus: [
+          { key: 'dotrans', label: '账户余额分账', path: '/cbk/trade/dotrans' },
+          { key: 'batchAllocate', label: '扫呗订单预分账', path: '/cbk/trade/batchAllocate' },
         ],
       },
     ],
