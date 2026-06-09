@@ -14,11 +14,10 @@ export default defineConfig({
     port: 3000,
     open: true,
     proxy: {
-      '/api': {
-        target: 'http://mch.lcsw.cn/lcsw', // 替换为实际后端
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
+    '/api-proxy': {
+      target: 'http://localhost',  // Nginx 的地址
+      changeOrigin: true,
     },
-  },
+  }
+  }
 })

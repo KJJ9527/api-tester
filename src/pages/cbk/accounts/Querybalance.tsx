@@ -39,7 +39,7 @@ const Querybalance: React.FC = () => {
   return (
     <ApiTester
       method="POST"
-      path="/account/open/queryBalance"
+      path="/account/open/querybalance"
       description="查询CBK账户余额"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}

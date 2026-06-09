@@ -174,10 +174,8 @@ const ApiTester: React.FC<ApiTesterProps> = ({
       return;
     }
 
-    // 开发环境自动使用代理，不依赖用户配置的绝对地址
-    const isDev = import.meta.env.DEV;
-    if (!isDev && !apiBaseURL) {
-      message.error('请先点击右上角“配置后端地址”按钮设置后端服务地址');
+    if (!apiBaseURL) {
+      message.error('请先点击右上角“基础配置”按钮设置后端服务地址');
       return;
     }
 

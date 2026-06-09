@@ -1,35 +1,28 @@
-import axios, { AxiosInstance } from 'axios'
-import { useConfigStore } from '@/stores/configStore'
+import axios from 'axios';
+import { useConfigStore } from '@/stores/configStore';
 
-let apiClient: AxiosInstance | null = null
+let apiClient: any = null;
 
 export const getApiClient = () => {
-  let { apiBaseURL } = useConfigStore.getState()
-
-  // 开发环境强制使用 /api 代理（忽略用户配置的绝对地址）
-  if (import.meta.env.DEV) {
-    apiBaseURL = '/api';
-  } else {
-    // 生产环境必须配置绝对地址
-    if (!apiBaseURL) {
-      throw new Error('请先在页面配置后端地址');
-    }
-  }
-  
-  if (apiClient && apiClient.defaults.baseURL === apiBaseURL) {
-    return apiClient
+  const { apiBaseURL } = useConfigStore.getState();
+  if (!apiBaseURL) {
+    throw new Error('请先在页面配置后端地址');
   }
 
+  // 每次都重新创建实例，确保使用最新的 apiBaseURL 作为请求头
   apiClient = axios.create({
-    baseURL: apiBaseURL,
+    baseURL: '/api-proxy',           // 固定代理路径，由 Nginx 处理
     timeout: 10000,
-  })
+    headers: {
+      'X-API-Target': apiBaseURL,   // 携带目标后端地址，Nginx 会读取这个头并转发
+    },
+  });
 
-  // 拦截器等
-  apiClient.interceptors.request.use((config) => {
-    // 可以动态添加 merchantId 等
-    return config
-  })
+  // 可选：添加请求拦截器，打印实际请求 URL（方便调试）
+  apiClient.interceptors.request.use(config => {
+    console.log(`[Request] ${config.method?.toUpperCase()} ${config.baseURL}${config.url} -> target: ${apiBaseURL}`);
+    return config;
+  });
 
-  return apiClient
-}
+  return apiClient;
+};
