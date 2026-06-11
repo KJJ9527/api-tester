@@ -67,7 +67,7 @@ const DatchAllocate: React.FC = () => {
   return (
     <ApiTester
       method="POST"
-      path="account/open/batchAllocate"
+      path="/account/open/batchAllocate"
       description="扫呗订单预分账"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}

@@ -1,6 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import { segmentedOptions } from '@/components/Layout/menuConfig';
+import { segmentedOptions } from '@/config/menu';
 
 // 递归收集所有 sidebarMenus 中的路由配置
 const collectRoutes = () => {

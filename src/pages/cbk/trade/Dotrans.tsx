@@ -60,7 +60,7 @@ const AddAccountIn: React.FC = () => {
   return (
     <ApiTester
       method="POST"
-      path="account/open/dotrans"
+      path="/account/open/dotrans"
       description="CBK账户余额分账"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}

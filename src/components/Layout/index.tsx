@@ -4,7 +4,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Layout, Menu, Tabs, Select, Switch, Space, Typography, ConfigProvider, theme as antdTheme, Breadcrumb } from 'antd';
 import { BulbOutlined, BulbFilled } from '@ant-design/icons';
 import ConfigPanel from '@/components/Config/ConfigPanel';
-import { segmentedOptions } from './menuConfig';
+import { segmentedOptions } from '@/config/menu';
 
 const { Header, Content, Footer, Sider } = Layout;
 const { Text } = Typography;
@@ -147,7 +147,6 @@ const AppLayout: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '0 24px',
             background: isDarkMode ? '#141414' : '#f5f5f5',
             borderBottom: `1px solid ${isDarkMode ? '#303030' : '#e8e8e8'}`,
           }}
@@ -166,6 +165,8 @@ const AppLayout: React.FC = () => {
               activeKey={activeHeaderMenuKey}
               items={headerTabItems}
               onChange={handleHeaderTabChange}
+              style={{ marginBottom: 0 }}
+              tabBarStyle={{ margin: 0 }}
             />
           </div>
 
@@ -183,7 +184,7 @@ const AppLayout: React.FC = () => {
         </Header>
 
         <Layout>
-          <Sider width={200} style={{ background: isDarkMode ? '#141414' : '#ffffff' }}>
+          <Sider width={260} style={{ background: isDarkMode ? '#141414' : '#ffffff' }}>
 
             <div style={{ padding: '16px 0 8px 16px', fontWeight: 500, borderBottom: `1px solid ${isDarkMode ? '#303030' : '#f0f0f0'}` }}>
               接口列表

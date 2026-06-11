@@ -36,7 +36,7 @@ export interface ParamDefinition {
 
 // 组件 Props
 interface ApiTesterProps {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE'; // 请求方法，默认 POST
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | ''; // 请求方法，默认 POST
   path: string;                     // 请求路径
   description?: string;              // 接口描述
   paramDefinitions: ParamDefinition[]; // 参数表格数据
@@ -60,6 +60,10 @@ const ApiTester: React.FC<ApiTesterProps> = ({
   const { apiBaseURL } = useConfigStore();
   const { isDarkMode } = useOutletContext<{ isDarkMode: boolean }>();
 
+
+  // 在组件内部，计算按钮是否禁用
+  const isSubmitDisabled = !path || !apiBaseURL;
+
   // 表格列定义
   const columns = [
     { title: '参数名', dataIndex: 'name', key: 'name', width: 120 },
@@ -69,7 +73,7 @@ const ApiTester: React.FC<ApiTesterProps> = ({
       title: '必填',
       dataIndex: 'required',
       key: 'required',
-      width: 50,
+      width: 80,
       render: (required: string) => {
         const colorMap: Record<string, string> = {
           '是': 'red',
@@ -270,7 +274,7 @@ const ApiTester: React.FC<ApiTesterProps> = ({
               pagination={false}
               size="small"
               rowKey="name"
-              scroll={{ x: 'max-content' }}
+              scroll={{ y: 600 }}
               expandable={{
                 rowExpandable: (record) => !!(record.customChildrenData?.length || record.childrenFields?.length),
                 expandedRowRender: (record) => {
@@ -373,7 +377,7 @@ const ApiTester: React.FC<ApiTesterProps> = ({
               <Button icon={<ReloadOutlined />} onClick={handleReset}>
                 重置
               </Button>
-              <Button icon={<SendOutlined />} type="primary" onClick={handleSubmit} loading={loading}>
+              <Button icon={<SendOutlined />} type="primary" onClick={handleSubmit} loading={loading} disabled={isSubmitDisabled}>
                 发送请求
               </Button>
             </Space>
