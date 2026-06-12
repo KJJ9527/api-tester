@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import ApiTester, { ParamDefinition } from '@/components/RequestTester';
-import { v4 as uuidv4 } from 'uuid';
+import { uuid } from '@/utils/tools';
 
 // 定义当前接口的参数表格数据
 const paramDefinitions: ParamDefinition[] = [
@@ -19,13 +19,10 @@ const paramDefinitions: ParamDefinition[] = [
 
 // 生成动态默认 JSON 的函数
 const getDynamicDefaultRequestJson = () => {
-
-  const trace_no = uuidv4().replace(/-/g, '');
-
   return {
     api_ver: '100',
     inst_no: '52101549',
-    trace_no,
+    trace_no: uuid(),
     account_no: '5005210154905486640',
     merchant_no: '',
     contract_type: '',
