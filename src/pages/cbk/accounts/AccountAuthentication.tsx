@@ -44,7 +44,6 @@ const AccountAuthentication: React.FC = () => {
       description="创建CBK账户并返回账户账号"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
-      stringifyFields={['cust_info']} // 指定需要转为字符串的字段
     />
   );
 };

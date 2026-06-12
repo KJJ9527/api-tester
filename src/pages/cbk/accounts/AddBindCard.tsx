@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import ApiTester, { ParamDefinition } from '@/components/RequestTester';
-import { v4 as uuidv4 } from 'uuid';
+import { uuid } from '@/utils/tools';
 
 // 定义当前接口的参数表格数据
 const paramDefinitions: ParamDefinition[] = [
@@ -28,14 +28,11 @@ const paramDefinitions: ParamDefinition[] = [
 
 // 生成动态默认 JSON 的函数
 const getDynamicDefaultRequestJson = () => {
-
-  const trace_no = uuidv4().replace(/-/g, '');
-
   return {
     api_ver: '100',
     inst_no: '52101549',
     brand_no: '',
-    trace_no,
+    trace_no: uuid(),
     account_no: '5005210154905486640',
     account_cardno: '8110701014001268543',
     account_name: '广州市番禺区老湘村餐馆',
@@ -65,7 +62,6 @@ const AddBindCard: React.FC = () => {
       description="新增CBK账户提现银行卡"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
-      stringifyFields={['account_rule']} // 指定需要转为字符串的字段
     />
   );
 };
