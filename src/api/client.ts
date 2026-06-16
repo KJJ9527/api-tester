@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { InternalAxiosRequestConfig } from 'axios';
 import { useConfigStore } from '@/stores/configStore';
 
 let apiClient: any = null;
@@ -19,7 +19,7 @@ export const getApiClient = () => {
   });
 
   // 可选：添加请求拦截器，打印实际请求 URL（方便调试）
-  apiClient.interceptors.request.use(config => {
+  apiClient.interceptors.request.use((config:InternalAxiosRequestConfig) => {
     console.log(`[Request] ${config.method?.toUpperCase()} ${config.baseURL}${config.url} -> target: ${apiBaseURL}`);
     return config;
   });

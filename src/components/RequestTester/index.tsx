@@ -320,7 +320,7 @@ const ApiTester: React.FC<ApiTesterProps> = ({
                         columns={cols}
                         pagination={false}
                         size="small"
-                        rowKey={(record, idx) => idx.toString()}
+                        rowKey={(record, index) => (index ?? 0).toString()}
                         scroll={{ x: '600px', y: '300px' }}
                       />
                     </div>
