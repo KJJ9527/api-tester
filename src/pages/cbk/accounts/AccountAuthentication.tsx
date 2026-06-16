@@ -41,7 +41,7 @@ const AccountAuthentication: React.FC = () => {
     <ApiTester
       method="POST"
       path="/account/open/accountAuthentication"
-      description="创建CBK账户并返回账户账号"
+      description="CBK账户鉴权"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
     />

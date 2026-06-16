@@ -61,7 +61,7 @@ const Updateaccount: React.FC = () => {
     <ApiTester
       method="POST"
       path="/account/open/updateaccount"
-      description="修改CBK账户结算信息"
+      description="CBK账户结算信息修改"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
       stringifyFields={['account_info']} // 指定需要转为字符串的字段

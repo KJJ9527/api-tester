@@ -29,7 +29,7 @@ const Bill: React.FC = () => {
   return (
     <ApiTester
       method="GET"
-      path="/order/account/day/inst_no/key_sign/account_balance_day.txt"
+      path="/order/account/{day}/{inst_no}/{key_sign}/{account_balance_day}.txt"
       description="CBK日终余额对账单，，只能使用正式机构参数下载"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}

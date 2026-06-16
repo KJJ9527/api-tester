@@ -59,7 +59,7 @@ const AddBindCard: React.FC = () => {
     <ApiTester
       method="POST"
       path="/account/open/addBindCard"
-      description="新增CBK账户提现银行卡"
+      description="CBK账户新增提现银行卡"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
     />

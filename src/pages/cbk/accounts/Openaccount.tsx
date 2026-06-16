@@ -41,7 +41,7 @@ const Openaccount: React.FC = () => {
     <ApiTester
       method="POST"
       path="/account/open/openaccount"
-      description="平安、中信分账通道时，需要调用该接口，进行账户的激活开通"
+      description="平安中信分账通道,需要调用该接口激活开通"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
     />

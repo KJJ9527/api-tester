@@ -36,7 +36,7 @@ const Queryaccount: React.FC = () => {
     <ApiTester
       method="POST"
       path="/account/open/queryaccount"
-      description="创建CBK账户并返回账户账号"
+      description="CBK账户查询"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
     />
