@@ -31,6 +31,7 @@ const paramDefinitions: ParamDefinition[] = [
       {
         name: 'merchant_name', type: 'string', length: 20, required: '是', description: 'CBK账户名称或者简称。当account_name长度大于20时必传该字段，否则会因为account_name过长报错；!注意：同一品牌下账户名称重复，或使用account_temp字段进行账户资料复用开户时必传，否则会报CBK名称已存在（一套资料创建多个账户时，可在CBK账户名称后增加数字或者其它简称）'
       },
+      { name: 'settlement_type', type: 'string', length: 1, required: '否', description: '结算类型:1.法人结算 2.非法人结算（使用account_temp字段进行账户资料复用开户时必传）' },
       { name: 'account_cardno', type: 'string', length: 30, required: '是', description: '结算银行卡号' },
       { name: 'account_phone', type: 'string', length: 11, required: '是', description: '结算卡银行预留手机号' },
       { name: 'account_idnum', type: 'string', length: 20, required: '是', description: '结算卡身份证号' },
@@ -45,7 +46,7 @@ const paramDefinitions: ParamDefinition[] = [
     ]
   },
   {
-    name: 'identity_id', type: 'string', length: 11, required: '否', description: '账户类型id，值见下方说明。不传默认使用：8',
+    name: 'identity_id', type: 'string', length: 11, required: '是', description: '账户类型id，值见下方说明',
     customChildrenData: [
       { id: '6', name: '入账方', description: '仅能入账和提现，不能分账' },
       { id: '8', name: '门店', description: '能入账、分账、提现。优先使用该类型' },
@@ -83,6 +84,7 @@ const getDynamicDefaultRequestJson = () => {
       account_type: '1',
       account_name: '广州市番禺区老湘村餐馆',
       merchant_name: '广州市番禺区老湘村餐馆123',
+      settlement_type: '',
       account_cardno: '8110701014001268543',
       account_phone: '15196529736',
       account_idnum: '540329197712286446',

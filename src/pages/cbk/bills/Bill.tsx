@@ -29,10 +29,12 @@ const Bill: React.FC = () => {
   return (
     <ApiTester
       method="GET"
-      path="/order/account/day/inst_no/key_sign/inst_no_day.txt"
-      description="CBK分账对账单"
+      path="/order/account/{day}/{inst_no}/{key_sign}/{inst_no_day}.txt"
+      description="CBK分账对账单,"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
+      excludeSignFields={['inst_no_day']}
+      isDownload
     />
   );
 };

@@ -34,6 +34,7 @@ export default function ConfigPanel() {
               value={tempApiURL}
               onChange={(e) => setTempApiURL(e.target.value)}
             />
+            <div>温馨提示：切换接口模块后，请先确认其对应模块请求地址</div>
           </div>
           <Divider />
           <div>
@@ -43,6 +44,7 @@ export default function ConfigPanel() {
               value={tempSecretKey}
               onChange={(e) => setTempSecretKey(e.target.value)}
             />
+            <div>温馨提示：输入密钥后，接口会自动生成签名。密钥需和机构编号inst_no或终端号terminal_id匹配</div>
           </div>
         </Space>
       </Modal>

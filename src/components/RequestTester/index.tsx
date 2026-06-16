@@ -42,6 +42,8 @@ interface ApiTesterProps {
   paramDefinitions: ParamDefinition[]; // 参数表格数据
   defaultRequestJson: Record<string, any>; // 默认请求 JSON
   stringifyFields?: string[];  // 新增：需要转换为 JSON 字符串的字段名数组
+  excludeSignFields?: string[];     // 签名时排除的字段（如 ['inst_no_day']）
+  isDownload?: boolean;             // 是否为下载接口
 }
 
 const ApiTester: React.FC<ApiTesterProps> = ({
@@ -51,6 +53,8 @@ const ApiTester: React.FC<ApiTesterProps> = ({
   paramDefinitions,
   defaultRequestJson,
   stringifyFields,
+  excludeSignFields = [],
+  isDownload = false,
 }) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any>(null);
@@ -129,6 +133,17 @@ const ApiTester: React.FC<ApiTesterProps> = ({
     }
   };
 
+  const buildUrl = (template: string, params: Record<string, any>): string => {
+    let url = template;
+    for (const [key, value] of Object.entries(params)) {
+      const placeholder = `{${key}}`;
+      if (url.includes(placeholder)) {
+        url = url.replace(new RegExp(placeholder, 'g'), encodeURIComponent(String(value)));
+      }
+    }
+    return url;
+  };
+
   // 字典序排序并拼接字符串
   const sortAndConcat = (obj: Record<string, any>): string => {
     const keys = Object.keys(obj).sort(); // 字典序升序
@@ -189,7 +204,7 @@ const ApiTester: React.FC<ApiTesterProps> = ({
     }
 
     // 1. 对需要字符串化的字段进行处理（例如 cust_info）
-    if (stringifyFields && stringifyFields.length) {
+    if (stringifyFields?.length) {
       // 浅拷贝，避免修改原对象（parseRequest 返回的是新对象，但拷贝更安全）
       payload = { ...payload };
       for (const field of stringifyFields) {
@@ -207,20 +222,37 @@ const ApiTester: React.FC<ApiTesterProps> = ({
       message.error('请先在配置中填写签名密钥 (Secret Key)');
       return;
     }
-    const sign = generateSign(payload, secretKey);
+
+    const signPayload = { ...payload };
+    if (excludeSignFields?.length) {
+      for (const field of excludeSignFields) {
+        delete signPayload[field];
+      }
+    }
+    const sign = generateSign(signPayload, secretKey);
     payload.key_sign = sign;
 
+
     try {
-      const apiClient = getApiClient();
       setLoading(true);
-      const responseData = await apiClient.request({
-        method,
-        url: path,
-        data: payload,
-      });
-      setResponse(responseData.data);
-      message.success('请求成功');
-      setActiveTab('response');
+      if (isDownload) {
+        const fullUrl = `${apiBaseURL.replace(/\/$/, '')}${buildUrl(path, payload)}`;
+        window.open(fullUrl, '_blank');
+        message.success('正在下载，请检查浏览器弹窗');
+        setActiveTab('response');
+      } else {
+        const apiClient = getApiClient();
+        setLoading(true);
+        const responseData = await apiClient.request({
+          method,
+          url: path,
+          data: payload,
+        });
+        setResponse(responseData.data);
+        message.success('请求成功');
+        setActiveTab('response');
+      }
+
     } catch (error: any) {
       // 提取错误信息
       const backendError = error.response?.data;

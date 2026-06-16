@@ -1,4 +1,6 @@
+import Authcodetoopenid from "@/pages/pay/Authcodetoopenid";
 import Barcodepay from "@/pages/pay/Barcodepay";
+import Bill from "@/pages/pay/bills/Bill";
 import Cancel from "@/pages/pay/Cancel";
 import Close from "@/pages/pay/Close";
 import Faceinfo from "@/pages/pay/Faceinfo";
@@ -6,6 +8,7 @@ import Facepay from "@/pages/pay/Facepay";
 import Jspay from "@/pages/pay/Jspay";
 import Minipay from "@/pages/pay/Minipay";
 import PayNotify from "@/pages/pay/PayNotify";
+import PaySync from "@/pages/pay/PaySync";
 import Qrpay from "@/pages/pay/Qrpay";
 import Query from "@/pages/pay/Query";
 import Queryrefund from "@/pages/pay/Queryrefund";
@@ -32,8 +35,19 @@ export const payMenuConfig = {
         { key: 'qrpay', label: '聚合码支付', path: '/pay/qrpay', element: <Qrpay /> },
         { key: 'WapPay', label: 'wap支付', path: '/pay/wappay', element: <WapPay /> },
         { key: 'faceinfo', label: '(刷脸)自助收银SDK调用凭证获取接口', path: '/pay/faceinfo', element: <Faceinfo /> },
-        { key: 'Facepay', label: '(刷脸)自助收银支付接口', path: '/pay/facepay', element: <Facepay /> },
+        { key: 'facepay', label: '(刷脸)自助收银支付接口', path: '/pay/facepay', element: <Facepay /> },
+        { key: 'paySync', label: '交易实时同步', path: '/pay/paysync', element: <PaySync /> },
+        { key: 'authcodetoopenid', label: '付款码查询 OPENID 接口', path: '/pay/authcodetoopenid', element: <Authcodetoopenid /> },
+
       ],
     },
-  ],
+    {
+      key: 'billApis',
+      label: '账单接口',
+      sidebarMenus: [
+        { key: 'bill', label: '收单对帐单下载', path: '/pay/bill', element: <Bill /> },
+      ]
+    }
+  ]
+
 };
