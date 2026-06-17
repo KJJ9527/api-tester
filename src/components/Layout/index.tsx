@@ -15,6 +15,56 @@ const AppLayout: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   const [isDarkMode, setIsDarkMode] = React.useState(false);
+
+  // 构建所有可搜索的接口列表
+  const searchableItems = useMemo(() => {
+    const items: {
+      label: string;
+      path: string;
+      segmentedLabel: string;
+      headerLabel: string;
+    }[] = [];
+    for (const seg of segmentedOptions) {
+      for (const header of seg.headerMenus) {
+        for (const menu of header.sidebarMenus) {
+          items.push({
+            label: menu.label,
+            path: menu.path,
+            segmentedLabel: seg.label,
+            headerLabel: header.label,
+          });
+        }
+      }
+    }
+    return items;
+  }, []);
+
+  const [searchValue, setSearchValue] = useState<string | undefined>(undefined);
+
+  const handleSearchSelect = (value: string) => {
+    // value 是选中的 path
+    const item = searchableItems.find(it => it.path === value);
+    if (item) {
+      navigate(item.path);
+      setSearchValue(undefined); // 清空选择
+    }
+  };
+
+  const searchOptions = searchableItems.map(item => ({
+    label: (
+      <span>
+        <span style={{ fontWeight: 500 }}>{item.label}</span>
+        <span style={{ marginLeft: 8, color: '#999', fontSize: 12 }}>
+          {item.path}
+        </span>
+        <span style={{ marginLeft: 8, color: '#bbb', fontSize: 11 }}>
+          {item.segmentedLabel} / {item.headerLabel}
+        </span>
+      </span>
+    ),
+    value: item.path,
+  }));
+
   const lightTheme = {
     algorithm: antdTheme.defaultAlgorithm,
     token: { colorBgContainer: '#ffffff', borderRadiusLG: 8 },
@@ -170,6 +220,31 @@ const AppLayout: React.FC = () => {
             />
           </div>
 
+          <Space size="large">
+            <Select
+              showSearch
+              placeholder="搜索接口名称或路径"
+              optionFilterProp="children"
+              options={searchOptions}
+              value={searchValue}
+              onChange={handleSearchSelect}
+              onClear={() => setSearchValue(undefined)}
+              allowClear
+              style={{ width: 300 }}
+              filterOption={(input, option) => {
+                // 自定义搜索：匹配 label 或 path
+                const item = searchableItems.find(it => it.path === option?.value);
+                if (!item) return false;
+                const searchText = input.toLowerCase();
+                return (
+                  item.label.toLowerCase().includes(searchText) ||
+                  item.path.toLowerCase().includes(searchText)
+                );
+              }}
+              notFoundContent="未找到匹配接口"
+            />
+          </Space>
+
           <Space>
             <Text type="secondary">{currentTime}</Text>
 
@@ -215,6 +290,8 @@ const AppLayout: React.FC = () => {
         </Layout>
 
         <Footer style={{ textAlign: 'center', background: isDarkMode ? '#141414' : '#ffffff' }}>
+          友情链接：<a href="https://help.lcsw.cn/xrmpic/tisnldchblgxohfl/rinsc3" target="_blank" rel="noopener noreferrer">利楚商服官方接口文档</a>,<a href="https://kjj9527.github.io/selfcheck/" target="_blank" rel="noopener noreferrer">支付异常知识库</a>
+          <br />
           利楚接口调试工具 ©{currentYear}
           <br />
           <Text>by：柯建军</Text>&nbsp;|&nbsp;
