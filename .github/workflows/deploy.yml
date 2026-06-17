@@ -1,0 +1,46 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [ main, master ]   # 当推送到 main 分支时触发
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. 设置 Node.js 环境
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # 3. 安装 pnpm
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      # 4. 安装依赖
+      - name: Install dependencies
+        run: pnpm install
+
+      # 5. 构建项目（生成 dist 目录）
+      - name: Build project
+        run: pnpm run build
+
+      # 6. 部署到服务器（使用 SCP）
+      - name: Deploy to Server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          # 写入私钥文件
+          echo "$SSH_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+          # 使用 scp 将 dist 目录下的所有文件复制到服务器（覆盖旧文件）
+          scp -o StrictHostKeyChecking=no -i private_key.pem -r dist/* $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH

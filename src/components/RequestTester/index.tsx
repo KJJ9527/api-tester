@@ -124,6 +124,10 @@ const ApiTester: React.FC<ApiTesterProps> = ({
   const formatJson = () => {
     try {
       const parsed = JSON.parse(requestJson);
+      // 先校验字段
+      if (!validatePayloadFields(parsed)) {
+        return; // 校验失败，不格式化
+      }
       const formatted = JSON.stringify(parsed, null, 2);
       setRequestJson(formatted);
       setJsonError(null);
