@@ -1,5 +1,5 @@
 // src/components/ConfigPanel.tsx
-import { Button, Modal, Input, message, Space, Divider } from 'antd';
+import { Button, Modal, Input, message, Space, Divider, Alert } from 'antd';
 import { useState } from 'react';
 import { useConfigStore } from '@/stores/configStore';
 
@@ -26,6 +26,7 @@ export default function ConfigPanel() {
         基础配置
       </Button>
       <Modal title="系统配置" open={open} onOk={handleSave} onCancel={() => setOpen(false)} width={500}>
+        <Alert title="仅供接口调试使用，请勿将此工具做为实际服务系统!" type="warning" closable />
         <Space direction="vertical" style={{ width: '100%' }}>
           <div>
             <div>后端 API 地址</div>
