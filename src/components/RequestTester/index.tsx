@@ -40,6 +40,7 @@ interface ApiTesterProps {
   path: string;                     // 请求路径
   description?: string;              // 接口描述
   paramDefinitions: ParamDefinition[]; // 参数表格数据
+  responseParamDefinitions?: ParamDefinition[]; // 新增：响应参数
   defaultRequestJson: Record<string, any>; // 默认请求 JSON
   stringifyFields?: string[];  // 新增：需要转换为 JSON 字符串的字段名数组
   excludeSignFields?: string[];     // 签名时排除的字段（如 ['inst_no_day']）
@@ -51,6 +52,7 @@ const ApiTester: React.FC<ApiTesterProps> = ({
   path,
   description,
   paramDefinitions,
+  responseParamDefinitions,
   defaultRequestJson,
   stringifyFields,
   excludeSignFields = [],
@@ -297,20 +299,20 @@ const ApiTester: React.FC<ApiTesterProps> = ({
     <Row gutter={24} style={{ height: '100%' }}>
       {/* 左侧：参数表格 */}
       <Col xs={24} sm={24} md={13} lg={13} style={{ height: '100%' }}>
-        <Card
-          title="REQUEST PARAMS"
-          style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-          bodyStyle={{ flex: 1, overflow: 'hidden', padding: '24px' }}
-
-        >
-          <div style={{ height: '100%', overflow: 'auto', minHeight: 0 }}>
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* REQUEST PARAMS 卡片 */}
+          <Card
+            title="REQUEST PARAMS"
+            style={{ flex: 6, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+            styles={{ body: { flex: 1, overflow: 'auto', padding: '16px' } }}
+          >
             <Table
               dataSource={paramDefinitions}
               columns={columns}
               pagination={false}
               size="small"
               rowKey="name"
-              scroll={{ y: 600 }}
+              scroll={{ x: 'max-content' }}
               expandable={{
                 rowExpandable: (record) => !!(record.customChildrenData?.length || record.childrenFields?.length),
                 expandedRowRender: (record) => {
@@ -332,8 +334,27 @@ const ApiTester: React.FC<ApiTesterProps> = ({
                 },
               }}
             />
-          </div>
-        </Card>
+          </Card>
+
+          {/* RESPONSE PARAMS 卡片（仅当有响应参数时显示） */}
+          {responseParamDefinitions && responseParamDefinitions.length > 0 && (
+            <Card
+              title="RESPONSE PARAMS"
+              style={{ flex: 4, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+              styles={{ body: { flex: 1, overflow: 'auto', padding: '16px' } }}
+            >
+              <Table
+                dataSource={responseParamDefinitions}
+                columns={columns}   // 复用相同的列定义
+                pagination={false}
+                size="small"
+                rowKey="name"
+                scroll={{ x: 'max-content' }}
+              />
+            </Card>
+          )}
+
+        </div>
       </Col>
 
       {/* 右侧：编辑器 + 响应 */}
@@ -352,13 +373,18 @@ const ApiTester: React.FC<ApiTesterProps> = ({
             </Button>
           }
           style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-          bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '24px' }}
+          styles={{ body: { flex: 1, display: 'flex', flexDirection: 'column', padding: '24px', overflow: 'hidden' } }}
         >
-          <Tabs activeKey={activeTab} onChange={setActiveTab} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            <TabPane tab="REQUEST" key="request" style={{ flex: 1 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <Tabs
+            activeKey={activeTab}
+            onChange={setActiveTab}
+            style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+            destroyOnHidden
+          >
+            <TabPane tab="REQUEST" key="request" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
                 <Editor
-                  height="500px"
+                  height="100%"
                   language="json"
                   value={requestJson}
                   onChange={handleJsonChange}
@@ -379,13 +405,13 @@ const ApiTester: React.FC<ApiTesterProps> = ({
                 )}
               </div>
             </TabPane>
-            <TabPane tab="RESPONSE" key="response" style={{ flex: 1 }}>
-              <div style={{ height: '100%', overflow: 'auto' }}>
+            <TabPane tab="RESPONSE" key="response" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
                 {loading ? (
                   <Spin />
                 ) : response ? (
                   <Editor
-                    height="500px"
+                    height="100%"
                     language="json"
                     value={JSON.stringify(response, null, 2)}
                     theme={isDarkMode ? 'vs-dark' : 'vs'}
@@ -404,8 +430,8 @@ const ApiTester: React.FC<ApiTesterProps> = ({
               </div>
             </TabPane>
           </Tabs>
-          {/* 底部按钮区域 - 固定高度，不随 Tab 切换变化 */}
-          <div style={{ marginTop: 16, borderTop: `1px solid ${isDarkMode ? '#303030' : '#f0f0f0'}`, paddingTop: 16 }}>
+          {/* 底部按钮区域 */}
+          <div style={{ flexShrink: 0, marginTop: 16, borderTop: `1px solid ${isDarkMode ? '#303030' : '#f0f0f0'}`, paddingTop: 16 }}>
             <Space style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'flex-end' }}>
               <Button icon={<FormatPainterOutlined />} onClick={formatJson}>
                 格式化

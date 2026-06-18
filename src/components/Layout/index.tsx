@@ -191,7 +191,8 @@ const AppLayout: React.FC = () => {
 
   return (
     <ConfigProvider theme={isDarkMode ? darkTheme : lightTheme}>
-      <Layout style={{ minHeight: '100vh' }}>
+      {/* 1. 根 Layout：占满视口，垂直 flex 布局 */}
+      <Layout style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Header
           style={{
             display: 'flex',
@@ -199,6 +200,7 @@ const AppLayout: React.FC = () => {
             justifyContent: 'space-between',
             background: isDarkMode ? '#141414' : '#f5f5f5',
             borderBottom: `1px solid ${isDarkMode ? '#303030' : '#e8e8e8'}`,
+            flexShrink: 0,
           }}
         >
           <Space size="large">
@@ -258,7 +260,8 @@ const AppLayout: React.FC = () => {
           </Space>
         </Header>
 
-        <Layout>
+        {/* 2. 主体区域：flex 占满剩余空间 */}
+        <Layout style={{ flex: 1, overflow: 'hidden' }}>
           <Sider width={260} style={{ background: isDarkMode ? '#141414' : '#ffffff' }}>
 
             <div style={{ padding: '16px 0 8px 16px', fontWeight: 500, borderBottom: `1px solid ${isDarkMode ? '#303030' : '#f0f0f0'}` }}>
@@ -272,24 +275,30 @@ const AppLayout: React.FC = () => {
             />
           </Sider>
 
-          <Layout>
+          {/* 3. 右侧内容区：flex 列布局，占满剩余宽度 */}
+          <Layout style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <Content
               style={{
                 background: isDarkMode ? '#141414' : '#ffffff',
-                minHeight: 280,
                 padding: 24,
+                overflow: 'hidden'
               }}
             >
-              {/* 面包屑导航 */}
-              <div style={{ padding: '16px 16px 0 16px' }}>
-                <Breadcrumb items={breadcrumbItems} />
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                {/* 面包屑导航 */}
+                <div style={{ marginBottom: 16 }}>
+                  <Breadcrumb items={breadcrumbItems} />
+                </div>
+                {/* Outlet 渲染子路由，高度由父容器撑满 */}
+                <div style={{ flex: 1, overflow: 'hidden' }}>
+                  <Outlet context={{ isDarkMode }} />
+                </div>
               </div>
-              <Outlet context={{ isDarkMode }} />
             </Content>
           </Layout>
         </Layout>
 
-        <Footer style={{ textAlign: 'center', background: isDarkMode ? '#141414' : '#ffffff' }}>
+        <Footer style={{ flexShrink: 0, textAlign: 'center', background: isDarkMode ? '#141414' : '#ffffff' }}>
           友情链接：<a href="https://help.lcsw.cn/xrmpic/tisnldchblgxohfl/rinsc3" target="_blank" rel="noopener noreferrer">利楚商服官方接口文档</a>,<a href="https://kjj9527.github.io/selfcheck/" target="_blank" rel="noopener noreferrer">支付异常知识库</a>
           <br />
           利楚接口调试工具 ©{currentYear}

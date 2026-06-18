@@ -120,3 +120,21 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* 强制 Tabs 内容区域占满 flex 容器 */
+.ant-tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.ant-tabs-content-holder {
+  flex: 1;
+  min-height: 0;
+}
+.ant-tabs-content {
+  height: 100%;
+}
+.ant-tabs-tabpane {
+  height: 100%;
+  overflow: auto;
+}
