@@ -17,6 +17,18 @@ const paramDefinitions: ParamDefinition[] = [
   { name: 'key_sign', type: 'string', length: 32, required: '是', description: '签名检验串，点击查看签名算法' },
 ];
 
+// 响应参数定义（根据实际接口文档填写）
+const responseParamDefinitions: ParamDefinition[] = [
+  { name: 'return_code', type: 'string', length: 2, required: '是', description: '业务响应码，01成功 02失败' },
+  { name: 'return_msg', type: 'string', length: 128, required: '是', description: '业务响应描述' },
+  { name: 'result_code', type: 'string', length: 2, required: '是', description: '业务处理响应码，01成功 02失败' },
+  { name: 'trace_no', type: 'string', length: 32, required: '是', description: '原请求流水号' },
+  { name: 'account_no', type: 'string', length: 32, required: '否', description: '扫呗CBK账户账号用于分账,提现,查询余额等接口交互' },
+  { name: 'account_status', type: 'string', length: 1, required: '否', description: '账户状态,枚举值： 0未申请 1正常 2上游审核中 3已冻结 4未激活 9已关闭' },
+  { name: 'back_url', type: 'string', length: 255, required: '否', description: '开户签约地址（网商通道返回）' },
+  { name: 'key_sign', type: 'string', length: 1024, required: '是', description: '签名检验串，点击查看签名算法' },
+];
+
 // 生成动态默认 JSON 的函数
 const getDynamicDefaultRequestJson = () => {
   return {
@@ -43,6 +55,7 @@ const Openaccount: React.FC = () => {
       path="/account/open/openaccount"
       description="平安中信分账通道,需要调用该接口激活开通"
       paramDefinitions={paramDefinitions}
+      responseParamDefinitions={responseParamDefinitions}
       defaultRequestJson={defaultRequestJson}
     />
   );

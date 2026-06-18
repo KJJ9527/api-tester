@@ -299,62 +299,63 @@ const ApiTester: React.FC<ApiTesterProps> = ({
     <Row gutter={24} style={{ height: '100%' }}>
       {/* 左侧：参数表格 */}
       <Col xs={24} sm={24} md={13} lg={13} style={{ height: '100%' }}>
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* REQUEST PARAMS 卡片 */}
-          <Card
-            title="REQUEST PARAMS"
-            style={{ flex: 6, display: 'flex', flexDirection: 'column', minHeight: 0 }}
-            styles={{ body: { flex: 1, overflow: 'auto', padding: '16px' } }}
+        {/* REQUEST PARAMS 卡片 */}
+        <Card
+          title="参数说明"
+          style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}
+          styles={{ body: { flex: 1, display: 'flex', flexDirection: 'column', padding: '16px', overflow: 'hidden' } }}
+        >
+          <Tabs
+            defaultActiveKey="request"
+            style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+            destroyOnHidden
           >
-            <Table
-              dataSource={paramDefinitions}
-              columns={columns}
-              pagination={false}
-              size="small"
-              rowKey="name"
-              scroll={{ x: 'max-content' }}
-              expandable={{
-                rowExpandable: (record) => !!(record.customChildrenData?.length || record.childrenFields?.length),
-                expandedRowRender: (record) => {
-                  const dataSource = record.customChildrenData || record.childrenFields || [];
-                  const cols = record.subColumns || columns;
-                  if (!dataSource.length) return null;
-                  return (
-                    <div style={{ paddingLeft: 24 }}>
-                      <Table
-                        dataSource={dataSource}
-                        columns={cols}
-                        pagination={false}
-                        size="small"
-                        rowKey={(record, index) => (index ?? 0).toString()}
-                        scroll={{ x: '600px', y: '300px' }}
-                      />
-                    </div>
-                  );
-                },
-              }}
-            />
-          </Card>
-
-          {/* RESPONSE PARAMS 卡片（仅当有响应参数时显示） */}
-          {responseParamDefinitions && responseParamDefinitions.length > 0 && (
-            <Card
-              title="RESPONSE PARAMS"
-              style={{ flex: 4, display: 'flex', flexDirection: 'column', minHeight: 0 }}
-              styles={{ body: { flex: 1, overflow: 'auto', padding: '16px' } }}
-            >
+            <TabPane tab="REQUEST PARAMS" key="request" style={{ flex: 1, overflow: 'auto' }}>
               <Table
-                dataSource={responseParamDefinitions}
-                columns={columns}   // 复用相同的列定义
+                dataSource={paramDefinitions}
+                columns={columns}
                 pagination={false}
                 size="small"
                 rowKey="name"
-                scroll={{ x: 'max-content' }}
+                expandable={{
+                  rowExpandable: (record) => !!(record.customChildrenData?.length || record.childrenFields?.length),
+                  expandedRowRender: (record) => {
+                    const dataSource = record.customChildrenData || record.childrenFields || [];
+                    const cols = record.subColumns || columns;
+                    if (!dataSource.length) return null;
+                    return (
+                      <div style={{ paddingLeft: 24 }}>
+                        <Table
+                          dataSource={dataSource}
+                          columns={cols}
+                          pagination={false}
+                          size="small"
+                          rowKey={(record, index) => (index ?? 0).toString()}
+                          scroll={{ x: '600px', y: '300px' }}
+                        />
+                      </div>
+                    );
+                  },
+                }}
               />
-            </Card>
-          )}
-
-        </div>
+            </TabPane>
+            <TabPane tab="RESPONSE PARAMS" key="response" style={{ flex: 1, overflow: 'auto' }}>
+              {responseParamDefinitions && responseParamDefinitions.length > 0 ? (
+                <Table
+                  dataSource={responseParamDefinitions}
+                  columns={columns}
+                  pagination={false}
+                  size="small"
+                  rowKey="name"
+                />
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                  <Text type="secondary">暂无响应参数</Text>
+                </div>
+              )}
+            </TabPane>
+          </Tabs>
+        </Card>
       </Col>
 
       {/* 右侧：编辑器 + 响应 */}
