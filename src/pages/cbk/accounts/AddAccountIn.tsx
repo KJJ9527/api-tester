@@ -48,7 +48,7 @@ const getDynamicDefaultRequestJson = () => {
     trace_no: uuid(),
     account_no_out: '5005210154905486640',
     merchant_no: '',
-    account_rule: '',
+    account_rule: '{"allocate_scale":10000,"account_no_in":"5005210154905486640"}',
     contract_type: '',
     authentication_channel: '',
     back_path: '',

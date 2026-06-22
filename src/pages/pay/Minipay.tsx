@@ -41,6 +41,30 @@ const paramDefinitions: ParamDefinition[] = [
   { name: 'key_sign', type: 'string', length: 32, required: '是', description: '签名检验串，点击查看签名算法' },
 ];
 
+// 响应参数定义（根据实际接口文档填写）
+const responseParamDefinitions: ParamDefinition[] = [
+  { name: 'return_code', type: 'string', length: 2, required: '是', description: '业务响应码，01成功 02失败' },
+  { name: 'return_msg', type: 'string', length: 128, required: '是', description: '业务响应描述' },
+  { name: 'result_code', type: 'string', length: 2, required: '否', description: '业务处理响应码，01成功 02失败' },
+  { name: 'pay_type', type: 'string', length: 3, required: '否', description: '支付时传递的支付方式' },
+  { name: 'merchant_name', type: 'string', length: 40, required: '否', description: '商户名称' },
+  { name: 'merchant_no', type: 'string', length: 15, required: '否', description: '商户号' },
+  { name: 'terminal_id', type: 'string', length: 8, required: '否', description: '终端号' },
+  { name: 'device_no', type: 'string', length: 32, required: '否', description: '商户终端设备号(商户自定义，如门店编号),必须在平台已配置过' },
+  { name: 'terminal_trace', type: 'string', length: 32, required: '否', description: '终端流水号，商户系统的支付订单号，系统原样返回' },
+  { name: 'terminal_time', type: 'string', length: 14, required: '否', description: '终端交易时间，yyyyMMddHHmmss，全局统一时间格式，系统原样返回' },
+  { name: 'total_fee', type: 'string', length: 12, required: '否', description: '金额，单位分' },
+  { name: 'out_trade_no', type: 'string', length: 32, required: '否', description: '扫呗订单号' },
+  { name: 'appId', type: 'string', length: 16, required: '否', description: '微信小程序支付返回字段，公众号id' },
+  { name: 'timeStamp', type: 'string', length: 32, required: '否', description: '微信小程序支付返回字段，时间戳，示例：1414561699，标准北京时间，时区为东八区，自1970年1月1日 0点0分0秒以来的秒数。注意：部分系统取到的值为毫秒级，需要转换成秒(10位数字)' },
+  { name: 'nonceStr', type: 'string', length: 32, required: '否', description: '微信小程序支付返回字段，随机字符串' },
+  { name: 'package_str', type: 'string', length: 128, required: '否', description: '微信小程序支付返回字段，订单详情扩展字符串，示例：prepay_id=123456789，统一下单接口返回的prepay_id参数值，提交格式如：prepay_id=' },
+  { name: 'signType', type: 'string', length: 32, required: '否', description: '微信小程序支付返回字段，签名方式，示例：MD5,RSA' },
+  { name: 'paySign', type: 'string', length: 32, required: '否', description: '微信小程序支付返回字段，签名' },
+  { name: 'ali_trade_no', type: 'string', length: 32, required: '否', description: '支付宝交易号，用于调用my.tradePay' },
+  { name: 'key_sign', type: 'string', length: 1024, required: '是', description: '签名检验串，点击查看签名算法' },
+];
+
 // 生成动态默认 JSON 的函数
 const getDynamicDefaultRequestJson = () => {
   return {
@@ -78,6 +102,7 @@ const Minipay: React.FC = () => {
       description="小程序下单接口"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
+      responseParamDefinitions={responseParamDefinitions}
       stringifyFields={['goods_detail']} // 指定需要转为字符串的字段
     />
   );

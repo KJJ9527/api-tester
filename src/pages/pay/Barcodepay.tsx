@@ -44,6 +44,38 @@ const paramDefinitions: ParamDefinition[] = [
   { name: 'key_sign', type: 'string', length: 32, required: '是', description: '签名检验串，点击查看签名算法' },
 ];
 
+// 响应参数定义（根据实际接口文档填写）
+const responseParamDefinitions: ParamDefinition[] = [
+  { name: 'return_code', type: 'string', length: 2, required: '是', description: '业务响应码，01成功 02失败' },
+  { name: 'return_msg', type: 'string', length: 128, required: '是', description: '业务响应描述' },
+  { name: 'result_code', type: 'string', length: 2, required: '否', description: '业务处理响应码，01成功 02失败' },
+  { name: 'pay_type', type: 'string', length: 3, required: '否', description: '支付方式：010 微信，020 支付宝，060 qq钱包，090 抖音支付，100 翼支付，110 银联云闪付，120 龙支付（建行通道可用），140 和包支付（和包通道可用），160 数字人民币，170 招行APP（招行通道可用）' },
+  { name: 'merchant_name', type: 'string', length: 40, required: '否', description: '商户名称' },
+  { name: 'merchant_no', type: 'string', length: 15, required: '否', description: '商户号' },
+  { name: 'terminal_id', type: 'string', length: 8, required: '否', description: '终端号' },
+  { name: 'device_no', type: 'string', length: 32, required: '否', description: '商户终端设备号(商户自定义，如门店编号),必须在平台已配置过' },
+  { name: 'terminal_trace', type: 'string', length: 32, required: '否', description: '终端流水号，商户系统的支付订单号，系统原样返回' },
+  { name: 'terminal_time', type: 'string', length: 14, required: '否', description: '终端交易时间，yyyyMMddHHmmss，全局统一时间格式，系统原样返回' },
+  { name: 'total_fee', type: 'string', length: 10, required: '否', description: '金额，单位分' },
+  { name: 'receipt_fee', type: 'string', length: 12, required: '否', description: '商家实收金额（分）' },
+  { name: 'buyer_pay_fee', type: 'string', length: 12, required: '否', description: '买家实付金额（分）pay_ver为202时返回' },
+  { name: 'platform_discount_fee', type: 'string', length: 12, required: '否', description: '平台优惠金额（分）pay_ver为202时返回' },
+  { name: 'merchant_discount_fee', type: 'string', length: 12, required: '否', description: '商家优惠金额（分）pay_ver为202时返回' },
+  { name: 'end_time', type: 'string', length: 14, required: '否', description: '支付完成时间，yyyyMMddHHmmss，全局统一时间格式' },
+  { name: 'out_trade_no', type: 'string', length: 32, required: '否', description: '扫呗订单号' },
+  { name: 'channel_trade_no', type: 'string', length: 32, required: '否', description: '微信订单号、支付宝订单号等（建议系统方取值后入库）' },
+  { name: 'channel_order_no', type: 'string', length: 32, required: '否', description: '收单通道侧订单号（建议系统方取值后入库）' },
+  { name: 'user_id', type: 'string', length: 32, required: '否', description: '付款方用户id，服务商appid下的“微信openid”、“支付宝账户' },
+  { name: 'attach', type: 'string', length: 128, required: '否', description: '附加数据,原样返回' },
+  { name: 'bank_type', type: 'string', length: 16, required: '否', description: '银行类型，采用字符串类型的银行标识。微信官方提供：银行类型对照表' },
+  {
+    name: 'promotion_detail', type: 'string', length: 255, required: '否', description: '官方营销详情,pay_ver为202时返回.本交易支付时使用的所有优惠券信息 ，单品优惠功能字段，详情见《优惠字段说明》'
+  },
+  { name: 'order_body', type: 'string', length: 128, required: '否', description: '订单描述,pay_ver为202时返回' },
+  { name: 'sub_openid', type: 'string', length: 32, required: '否', description: '微信子商户sub_appid对应的用户标识,pay_ver为202时返回' },
+  { name: 'key_sign', type: 'string', length: 1024, required: '是', description: '签名检验串，点击查看签名算法' },
+];
+
 // 生成动态默认 JSON 的函数
 const getDynamicDefaultRequestJson = () => {
   return {
@@ -84,6 +116,7 @@ const Barcodepay: React.FC = () => {
       description="付款码支付（B扫C）"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
+      responseParamDefinitions={responseParamDefinitions}
       stringifyFields={['goods_detail']} // 指定需要转为字符串的字段
     />
   );
