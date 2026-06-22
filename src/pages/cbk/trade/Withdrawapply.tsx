@@ -18,6 +18,20 @@ const paramDefinitions: ParamDefinition[] = [
   { name: 'key_sign', type: 'string', length: 32, required: '是', description: '签名检验串，点击查看签名算法' },
 ];
 
+// 响应参数定义（根据实际接口文档填写）
+const responseParamDefinitions: ParamDefinition[] = [
+  { name: 'return_code', type: 'string', length: 2, required: '是', description: '业务响应码，01成功 02失败' },
+  { name: 'return_msg', type: 'string', length: 128, required: '是', description: '业务响应描述' },
+  { name: 'result_code', type: 'string', length: 2, required: '否', description: '业务处理响应码，01成功 02失败' },
+  { name: 'trace_no', type: 'string', length: 32, required: '是', description: '原请求流水号' },
+  { name: 'trade_no', type: 'string', length: 32, required: '否', description: '分账流水号,原样返回' },
+  { name: 'out_trade_no', type: 'string', length: 32, required: '否', description: 'CBK分账交易订单号,分账完成后生成的唯一流水号' },
+  { name: 'poundage', type: 'string', length: 11, required: '否', description: '提现手续费，单位分' },
+  { name: 'trade_status', type: 'string', length: 2, required: '否', description: '订单状态 2：失败 3：处理中(具体到账时效以银行卡到账为准)' },
+  { name: 'attach', type: 'string', length: 128, required: '否', description: '交易备注' },
+  { name: 'key_sign', type: 'string', length: 1024, required: '是', description: '签名检验串，点击查看签名算法' },
+];
+
 // 生成动态默认 JSON 的函数
 const getDynamicDefaultRequestJson = () => {
   return {
@@ -44,6 +58,7 @@ const Withdrawapply: React.FC = () => {
       description="CBK账户提现"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
+      responseParamDefinitions={responseParamDefinitions}
     />
   );
 };

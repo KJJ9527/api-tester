@@ -22,6 +22,16 @@ const paramDefinitions: ParamDefinition[] = [
   { name: 'key_sign', type: 'string', length: 32, required: '是', description: '签名检验串，点击查看签名算法' },
 ];
 
+// 响应参数定义（根据实际接口文档填写）
+const responseParamDefinitions: ParamDefinition[] = [
+  { name: 'return_code', type: 'string', length: 2, required: '是', description: '业务响应码，01成功 02失败' },
+  { name: 'return_msg', type: 'string', length: 128, required: '是', description: '业务响应描述' },
+  { name: 'result_code', type: 'string', length: 2, required: '否', description: '业务处理响应码，01成功 02失败' },
+  { name: 'trace_no', type: 'string', length: 32, required: '是', description: '原请求流水号' },
+  { name: 'file_name', type: 'string', length: 2048, required: '否', description: '文件名格式： 商户编号(15 位)+文件类型（3 位，828）+当前日期（6 位， 格式：yyMMdd）+19 位序号+4 位后缀(.ZIP)根据此文件名可查询文件处理 状态及下载文件' },
+  { name: 'key_sign', type: 'string', length: 1024, required: '是', description: '签名检验串，点击查看签名算法' },
+];
+
 // 生成动态默认 JSON 的函数
 const getDynamicDefaultRequestJson = () => {
   return {
@@ -48,6 +58,7 @@ const Apply: React.FC = () => {
       description="中信交易明细电子回单申请"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
+      responseParamDefinitions={responseParamDefinitions}
     />
   );
 };

@@ -112,6 +112,24 @@ const ApiTester: React.FC<ApiTesterProps> = ({
     },
   ];
 
+  const renderExpandedRow = (record: ParamDefinition) => {
+    const dataSource = record.customChildrenData || record.childrenFields || [];
+    const cols = record.subColumns || columns;
+    if (!dataSource.length) return null;
+    return (
+      <div style={{ paddingLeft: 24 }}>
+        <Table
+          dataSource={dataSource}
+          columns={cols}
+          pagination={false}
+          size="small"
+          rowKey={(record, index) => (index ?? 0).toString()}
+          scroll={{ x: '600px', y: '300px' }}
+        />
+      </div>
+    );
+  };
+
   const parseRequest = (): any => {
     try {
       const parsed = JSON.parse(requestJson);
@@ -310,7 +328,7 @@ const ApiTester: React.FC<ApiTesterProps> = ({
             style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
             destroyOnHidden
           >
-            <TabPane tab="REQUEST PARAMS" key="request" style={{ flex: 1, overflow: 'auto' }}>
+            <TabPane tab="请求参数" key="request" style={{ flex: 1, overflow: 'auto' }}>
               <Table
                 dataSource={paramDefinitions}
                 columns={columns}
@@ -319,27 +337,11 @@ const ApiTester: React.FC<ApiTesterProps> = ({
                 rowKey="name"
                 expandable={{
                   rowExpandable: (record) => !!(record.customChildrenData?.length || record.childrenFields?.length),
-                  expandedRowRender: (record) => {
-                    const dataSource = record.customChildrenData || record.childrenFields || [];
-                    const cols = record.subColumns || columns;
-                    if (!dataSource.length) return null;
-                    return (
-                      <div style={{ paddingLeft: 24 }}>
-                        <Table
-                          dataSource={dataSource}
-                          columns={cols}
-                          pagination={false}
-                          size="small"
-                          rowKey={(record, index) => (index ?? 0).toString()}
-                          scroll={{ x: '600px', y: '300px' }}
-                        />
-                      </div>
-                    );
-                  },
+                  expandedRowRender: renderExpandedRow,
                 }}
               />
             </TabPane>
-            <TabPane tab="RESPONSE PARAMS" key="response" style={{ flex: 1, overflow: 'auto' }}>
+            <TabPane tab="返回参数" key="response" style={{ flex: 1, overflow: 'auto' }}>
               {responseParamDefinitions && responseParamDefinitions.length > 0 ? (
                 <Table
                   dataSource={responseParamDefinitions}
@@ -347,6 +349,10 @@ const ApiTester: React.FC<ApiTesterProps> = ({
                   pagination={false}
                   size="small"
                   rowKey="name"
+                  expandable={{
+                    rowExpandable: (record) => !!(record.customChildrenData?.length || record.childrenFields?.length),
+                    expandedRowRender: renderExpandedRow,
+                  }}
                 />
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>

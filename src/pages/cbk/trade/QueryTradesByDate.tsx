@@ -18,6 +18,33 @@ const paramDefinitions: ParamDefinition[] = [
   { name: 'key_sign', type: 'string', length: 32, required: '是', description: '签名检验串，点击查看签名算法' },
 ];
 
+// 响应参数定义（根据实际接口文档填写）
+const responseParamDefinitions: ParamDefinition[] = [
+  { name: 'return_code', type: 'string', length: 2, required: '是', description: '业务响应码，01成功 02失败' },
+  { name: 'return_msg', type: 'string', length: 128, required: '是', description: '业务响应描述' },
+  { name: 'result_code', type: 'string', length: 2, required: '否', description: '业务处理响应码，01成功 02失败' },
+  { name: 'trace_no', type: 'string', length: 32, required: '是', description: '原请求流水号' },
+  {
+    name: 'tradeDataList', type: 'string', length: 1024, required: '否', description: '入账订单集合',
+    childrenFields:
+      [
+        { name: 'trans_date', type: 'string', length: 8, required: '是', description: '交易日期，格式：YYYYMMDD' },
+        { name: 'trans_time', type: 'String', length: 6, required: '是', description: '交易时间，格式：HHMMSS' },
+        { name: 'trans_type', type: 'string', length: 1, required: '是', description: '交易类型: 1.订单分账 2.余额分账3. 充值 4.提现 5.分账退回 6. 清分' },
+        { name: 'trans_flag', type: 'string', length: 1, required: '否', description: '资金方向1：转出 2：转入' },
+        { name: 'amt', type: 'string', length: 11, required: '是', description: '交易金额，单位：分' },
+        { name: 'out_trade_no', type: 'string', length: 15, required: '是', description: 'CBK分账订单号' },
+        { name: 'channel_trade_no', type: 'string', length: 10, required: '是', description: '通道分账订单号' },
+        { name: 'trade_status', type: 'string', length: 1, required: '是', description: '0:成功' },
+        { name: 'order_body', type: 'string', length: 100, required: '是', description: '交易备注' },
+      ]
+  },
+  { name: 'total_page', type: 'string', length: 15, required: '是', description: '总页数' },
+  { name: 'total_number', type: 'string', length: 15, required: '是', description: '记录总数' },
+  { name: 'account_channel', type: 'string', length: 15, required: '是', description: 'CBK账号所属通道' },
+  { name: 'key_sign', type: 'string', length: 1024, required: '是', description: '签名检验串，点击查看签名算法' },
+];
+
 // 生成动态默认 JSON 的函数
 const getDynamicDefaultRequestJson = () => {
   return {
@@ -42,6 +69,7 @@ const QueryTradesByDate: React.FC = () => {
       description="CBK分账数据列表查询"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
+      responseParamDefinitions={responseParamDefinitions}
     />
   );
 };
