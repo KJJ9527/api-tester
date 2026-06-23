@@ -20,6 +20,26 @@ const paramDefinitions: ParamDefinition[] = [
   { name: 'key_sign', type: 'string', length: 32, required: '是', description: '签名检验串，点击查看签名算法' },
 ];
 
+// 响应参数定义（根据实际接口文档填写）
+const responseParamDefinitions: ParamDefinition[] = [
+  {
+    name: 'return_code', type: 'string', length: 2, required: '是', description: '响应码：01成功 ，02失败；说明：先判断该字段，再判断result_code，若该字段返回02，需调用支付查询接口，确认订单状态'
+  },
+  { name: 'return_msg', type: 'string', length: 128, required: '是', description: '业务响应描述' },
+  { name: 'result_code', type: 'string', length: 2, required: '否', description: '业务结果，“01”成功，表示撤销成功，此笔订单不能再发起支付；若已支付完成，则会发起退款；“02”失败，表示撤销接口异常' },
+  {
+    name: 'pay_type', type: 'string', length: 3, required: '否', description: '支付方式：010 微信，020 支付宝，090 抖音支付，110 银联云闪付'
+  },
+  { name: 'merchant_name', type: 'string', length: 40, required: '否', description: '商户名称' },
+  { name: 'merchant_no', type: 'string', length: 15, required: '否', description: '商户号' },
+  { name: 'terminal_id', type: 'string', length: 8, required: '否', description: '终端号' },
+  { name: 'device_no', type: 'string', length: 32, required: '否', description: '商户终端设备号(商户自定义，如门店编号),必须在平台已配置过' },
+  { name: 'terminal_trace', type: 'string', length: 32, required: '否', description: '终端流水号' },
+  { name: 'terminal_time', type: 'string', length: 14, required: '否', description: '终端撤销时间，yyyyMMddHHmmss，全局统一时间格式' },
+  { name: 'recall', type: 'string', length: 1, required: '否', description: '废弃字段' },
+  { name: 'key_sign', type: 'string', length: 1024, required: '是', description: '签名检验串，点击查看签名算法' },
+];
+
 // 生成动态默认 JSON 的函数
 const getDynamicDefaultRequestJson = () => {
   return {
@@ -47,6 +67,7 @@ const Cancel: React.FC = () => {
       description="支付撤销接口,只适用B扫C的支付单撤销,人工确认后撤销"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
+      responseParamDefinitions={responseParamDefinitions}
     />
   );
 };

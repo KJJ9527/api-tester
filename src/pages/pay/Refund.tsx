@@ -26,6 +26,33 @@ const paramDefinitions: ParamDefinition[] = [
   { name: 'key_sign', type: 'string', length: 32, required: '是', description: '签名检验串，点击查看签名算法' },
 ];
 
+// 响应参数定义（根据实际接口文档填写）
+const responseParamDefinitions: ParamDefinition[] = [
+  { name: 'return_code', type: 'string', length: 2, required: '是', description: '业务响应码，01成功 02失败' },
+  { name: 'return_msg', type: 'string', length: 128, required: '是', description: '业务响应描述' },
+  { name: 'result_code', type: 'string', length: 2, required: '否', description: '业务结果：01成功 ，02失败 （无需继续查询），03处理中（状态异常或微信B2b时返回）' },
+  {
+    name: 'pay_type', type: 'string', length: 3, required: '否', description: '支付方式：010 微信，020 支付宝，060 qq钱包，090 抖音支付，100 翼支付，110 银联云闪付，120 龙支付（建行通道可用），140 和包支付（和包通道可用），160 数字人民币，170 招行APP（招行通道可用），180 微企付，190 支付宝商转 ，200 微信B2b'
+  },
+  { name: 'merchant_name', type: 'string', length: 40, required: '否', description: '商户名称' },
+  { name: 'merchant_no', type: 'string', length: 15, required: '否', description: '商户号' },
+  { name: 'terminal_id', type: 'string', length: 8, required: '否', description: '终端号' },
+  { name: 'device_no', type: 'string', length: 32, required: '否', description: '商户终端设备号(商户自定义，如门店编号),必须在平台已配置过' },
+  { name: 'terminal_trace', type: 'string', length: 32, required: '否', description: '终端流水号，商户系统的退款流水号，系统原样返回' },
+  { name: 'terminal_time', type: 'string', length: 14, required: '否', description: '终端退款时间，yyyyMMddHHmmss，全局统一时间格式，系统原样返回' },
+  { name: 'refund_fee', type: 'string', length: 10, required: '否', description: '退款金额，单位分' },
+  { name: 'refund_receipt_fee', type: 'string', length: 12, required: '否', description: '退商家实收金额（分）pay_ver为202时返回' },
+  { name: 'refund_buyer_pay_fee', type: 'string', length: 12, required: '否', description: '退买家实付金额（分）pay_ver为202时返回' },
+  { name: 'refund_platform_discount_fee', type: 'string', length: 12, required: '否', description: '退平台优惠金额（分）pay_ver为202时返回' },
+  { name: 'refund_merchant_discount_fee', type: 'string', length: 12, required: '否', description: '退商家优惠金额（分）pay_ver为202时返回' },
+  { name: 'refund_promotion_detail', type: 'string', length: 12, required: '否', description: '退优惠明细，详情见《优惠字段说明》pay_ver为202时返回' },
+  { name: 'end_time', type: 'string', length: 14, required: '否', description: '退款完成时间，yyyyMMddHHmmss，全局统一时间格式' },
+  { name: 'out_trade_no', type: 'string', length: 32, required: '否', description: '扫呗原支付订单号' },
+  { name: 'out_refund_no', type: 'string', length: 32, required: '否', description: '扫呗侧退款单号' },
+  { name: 'channel_refund_no', type: 'string', length: 32, required: '否', description: '通道侧退款单号' },
+  { name: 'key_sign', type: 'string', length: 1024, required: '是', description: '签名检验串，点击查看签名算法' },
+];
+
 // 生成动态默认 JSON 的函数
 const getDynamicDefaultRequestJson = () => {
   return {
@@ -55,6 +82,7 @@ const Refund: React.FC = () => {
       description="支付退款接口"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
+      responseParamDefinitions={responseParamDefinitions}
     />
   );
 };

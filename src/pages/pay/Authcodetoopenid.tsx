@@ -20,6 +20,29 @@ const paramDefinitions: ParamDefinition[] = [
   { name: 'key_sign', type: 'string', length: 32, required: '是', description: '签名检验串，点击查看签名算法' },
 ];
 
+// 响应参数定义（根据实际接口文档填写）
+const responseParamDefinitions: ParamDefinition[] = [
+  {
+    name: 'return_code', type: 'string', length: 2, required: '是', description: '01 成功 ，02 失败。说明：先判断该字段，再判断result_code，若该字段返回02，无需再做其它操作'
+  },
+  { name: 'return_msg', type: 'string', length: 128, required: '是', description: '返回信息提示，“查询成功”，“请求受限”等' },
+  { name: 'result_code', type: 'string', length: 2, required: '否', description: '业务结果：01 成功，02 失败' },
+  {
+    name: 'pay_type', type: 'string', length: 3, required: '否', description: '支付方式，010 微信，020 支付宝'
+  },
+  { name: 'merchant_name', type: 'string', length: 40, required: '否', description: '商户名称' },
+  { name: 'merchant_no', type: 'string', length: 15, required: '否', description: '商户号' },
+  { name: 'terminal_id', type: 'string', length: 8, required: '否', description: '终端号' },
+  { name: 'terminal_trace', type: 'string', length: 32, required: '否', description: '终端流水号，商户系统的支付订单号，系统原样返回' },
+  { name: 'terminal_time', type: 'string', length: 14, required: '否', description: '终端发起时间，yyyyMMddHHmmss，全局统一时间格式，系统原样返回' },
+  { name: 'appid', type: 'string', length: 14, required: '否', description: '服务商的公众账号ID' },
+  { name: 'sub_appid', type: 'string', length: 14, required: '否', description: '子商户的appid' },
+  { name: 'openid', type: 'string', length: 14, required: '否', description: '用户在服务商appid下的唯一标识，或支付宝下的唯一标识user_id' },
+  { name: 'sub_openid', type: 'string', length: 32, required: '否', description: '用户在子商户appid下的唯一标识' },
+  { name: 'attach', type: 'string', length: 32, required: '否', description: '附加数据,原样返回' },
+  { name: 'key_sign', type: 'string', length: 1024, required: '是', description: '签名检验串，点击查看签名算法' },
+];
+
 // 生成动态默认 JSON 的函数
 const getDynamicDefaultRequestJson = () => {
   return {
@@ -46,6 +69,7 @@ const Authcodetoopenid: React.FC = () => {
       description="付款码查询 OPENID 接口"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
+      responseParamDefinitions={responseParamDefinitions}
     />
   );
 };

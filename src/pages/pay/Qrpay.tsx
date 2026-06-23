@@ -29,6 +29,25 @@ const paramDefinitions: ParamDefinition[] = [
   { name: 'key_sign', type: 'string', length: 32, required: '是', description: '签名检验串，点击查看签名算法' },
 ];
 
+// 响应参数定义（根据实际接口文档填写）
+const responseParamDefinitions: ParamDefinition[] = [
+  {
+    name: 'return_code', type: 'string', length: 2, required: '是', description: '响应码：01成功 ，02失败；说明：先判断该字段，再判断result_code，若该字段返回02，需调用支付查询接口，确认订单状态'
+  },
+  { name: 'return_msg', type: 'string', length: 128, required: '是', description: '返回信息提示，“预支付请求成功”，“预支付请求失败”等' },
+  {
+    name: 'result_code', type: 'string', length: 2, required: '否', description: '业务结果：01成功 ，02失败'
+  },
+  { name: 'merchant_name', type: 'string', length: 40, required: '否', description: '商户名称' },
+  { name: 'merchant_no', type: 'string', length: 15, required: '否', description: '商户号' },
+  { name: 'terminal_id', type: 'string', length: 8, required: '否', description: '终端号' },
+  { name: 'terminal_trace', type: 'string', length: 32, required: '否', description: '终端流水号，商户系统的订单号，扫呗系统原样返回' },
+  { name: 'terminal_time', type: 'string', length: 14, required: '否', description: '终端交易时间，yyyyMMddHHmmss，全局统一时间格式' },
+  { name: 'total_fee', type: 'string', length: 12, required: '否', description: '金额，单位分' },
+  { name: 'qr_url', type: 'string', length: 128, required: '否', description: '短链接，需调用方自己转换成二维码或直接在微信和支付宝、云闪付内打开链接' },
+  { name: 'key_sign', type: 'string', length: 1024, required: '是', description: '签名检验串，点击查看签名算法' },
+];
+
 // 生成动态默认 JSON 的函数
 const getDynamicDefaultRequestJson = () => {
   return {
@@ -59,6 +78,7 @@ const Qrpay: React.FC = () => {
       description="聚合码接口(C扫B)"
       paramDefinitions={paramDefinitions}
       defaultRequestJson={defaultRequestJson}
+      responseParamDefinitions={responseParamDefinitions}
     />
   );
 };

@@ -1,3 +1,4 @@
+import AuthAccessToken from "@/pages/pay/AuthAccessToken";
 import Authcodetoopenid from "@/pages/pay/Authcodetoopenid";
 import Barcodepay from "@/pages/pay/Barcodepay";
 import Bill from "@/pages/pay/bills/Bill";
@@ -37,6 +38,7 @@ export const payMenuConfig = {
         { key: 'faceinfo', label: '(刷脸)自助收银SDK调用凭证获取接口', path: '/pay/faceinfo', element: <Faceinfo /> },
         { key: 'facepay', label: '(刷脸)自助收银支付接口', path: '/pay/facepay', element: <Facepay /> },
         { key: 'paySync', label: '交易实时同步', path: '/pay/paysync', element: <PaySync /> },
+        { key: 'authAccessToken', label: '获取服务商公众号下openid', path: '/pay/authAccessToken', element: <AuthAccessToken /> },
         { key: 'authcodetoopenid', label: '付款码查询 OPENID 接口', path: '/pay/authcodetoopenid', element: <Authcodetoopenid /> },
 
       ],
