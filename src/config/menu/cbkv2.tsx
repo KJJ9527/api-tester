@@ -18,6 +18,9 @@ import HandleUnknownAccount from "@/pages/cbk/unknownBills/HandleUnknownAccount"
 import QueryUnknownAccounts from "@/pages/cbk/unknownBills/QueryUnknownAccounts";
 import { SegmentedOption } from "@/types/menu";
 import GetSignUrl from "@/pages/cbkv2/accounts/GetSignUrl";
+import QueryAccount from "@/pages/cbkv2/accounts/QueryAccount";
+import CloseAccount from "@/pages/cbkv2/accounts/CloseAccount";
+import BindCard from "@/pages/cbkv2/cards/BindCard";
 
 export const cbkv2MenuConfig: SegmentedOption = {
   key: 'cbkv2Modules',
@@ -29,19 +32,20 @@ export const cbkv2MenuConfig: SegmentedOption = {
       sidebarMenus: [
         { key: 'createaccount', label: 'CBK账户开户', path: '/cbkv2/account/createaccount', element: <CreateAccount /> },
         { key: 'getSignUrl', label: '生成签约链接', path: '/cbkv2/account/getSignUrl', element: <GetSignUrl /> },
+        { key: 'queryAccount', label: '账户查询', path: '/cbkv2/account/queryAccount', element: <QueryAccount /> },
+        { key: 'closeAccount', label: '注销账户', path: '/cbkv2/account/closeAccount', element: <CloseAccount /> },
       ],
     },
     {
-      key: 'cardApis',
-      label: '账单接口',
+      key: 'CardApis',
+      label: '结算卡接口',
       sidebarMenus: [
-        { key: 'billDownload', label: '分账数据对账单下载', path: '/cbkv2/bill/bill', element: <Bill /> },
-        { key: 'billBalanceDownload', label: '日终余额对账单下载', path: '/cbkv2/bill/billBalance', element: <BillBalance /> },
+        { key: 'bindCard', label: '绑定结算卡', path: '/cbkv2/card/bindCard', element: <BindCard /> },
       ],
     },
     {
       key: 'tradeApis',
-      label: '交易接口',
+      label: '账户分账接口',
       sidebarMenus: [
         { key: 'dotrans', label: '账户余额分账', path: '/cbkv2/trade/dotrans', element: <Dotrans /> },
         { key: 'batchAllocate', label: '扫呗订单预分账', path: '/cbkv2/trade/batchAllocate', element: <DatchAllocate /> },
@@ -52,6 +56,14 @@ export const cbkv2MenuConfig: SegmentedOption = {
         { key: 'queryTradesByDate', label: 'CBK分账数据列表查询', path: '/cbkv2/trade/queryTradesByDate', element: <QueryTradesByDate /> },
         { key: 'allocateRefund', label: 'CBK分账交易退回', path: '/cbkv2/trade/allocateRefund', element: <AllocateRefund /> },
         { key: 'queryChannelTransIn', label: 'CBK查询渠道入金交易明细', path: '/cbkv2/trade/queryChannelTransIn', element: <QueryChannelTransIn /> },
+      ],
+    },
+    {
+      key: 'billApis',
+      label: '账单接口',
+      sidebarMenus: [
+        { key: 'billDownload', label: '分账数据对账单下载', path: '/cbkv2/bill/bill', element: <Bill /> },
+        { key: 'billBalanceDownload', label: '日终余额对账单下载', path: '/cbkv2/bill/billBalance', element: <BillBalance /> },
       ],
     },
     {
