@@ -21,6 +21,13 @@ import GetSignUrl from "@/pages/cbkv2/accounts/GetSignUrl";
 import QueryAccount from "@/pages/cbkv2/accounts/QueryAccount";
 import CloseAccount from "@/pages/cbkv2/accounts/CloseAccount";
 import BindCard from "@/pages/cbkv2/cards/BindCard";
+import UpdateAccount from "@/pages/cbkv2/accounts/UpdateAccount";
+import ApplyActiveCard from "@/pages/cbkv2/cards/ApplyActiveCard";
+import CheckActiveCard from "@/pages/cbkv2/cards/CheckActiveCard";
+import SetDefaultCard from "@/pages/cbkv2/cards/setDefaultCard";
+import UnBindCard from "@/pages/cbkv2/cards/UnBindCard";
+import UpdateCard from "@/pages/cbkv2/cards/UpdateCard";
+import QueryCard from "@/pages/cbkv2/cards/QueryCard";
 
 export const cbkv2MenuConfig: SegmentedOption = {
   key: 'cbkv2Modules',
@@ -34,6 +41,7 @@ export const cbkv2MenuConfig: SegmentedOption = {
         { key: 'getSignUrl', label: '生成签约链接', path: '/cbkv2/account/getSignUrl', element: <GetSignUrl /> },
         { key: 'queryAccount', label: '账户查询', path: '/cbkv2/account/queryAccount', element: <QueryAccount /> },
         { key: 'closeAccount', label: '注销账户', path: '/cbkv2/account/closeAccount', element: <CloseAccount /> },
+        { key: 'updateAccount', label: '修改账户', path: '/cbkv2/account/updateAccount', element: <UpdateAccount /> },
       ],
     },
     {
@@ -41,6 +49,12 @@ export const cbkv2MenuConfig: SegmentedOption = {
       label: '结算卡接口',
       sidebarMenus: [
         { key: 'bindCard', label: '绑定结算卡', path: '/cbkv2/card/bindCard', element: <BindCard /> },
+        { key: 'applyActiveCard', label: '发起银行卡激活', path: '/cbkv2/card/applyActiveCard', element: <ApplyActiveCard /> },
+        { key: 'checkActiveCard', label: '验证银行卡激活', path: '/cbkv2/card/checkActiveCard', element: <CheckActiveCard /> },
+        { key: 'setDefaultCard', label: '设置默认结算卡', path: '/cbkv2/card/setDefaultCard', element: <SetDefaultCard /> },
+        { key: 'unBindCard', label: '解绑结算卡', path: '/cbkv2/card/unBindCard', element: <UnBindCard /> },
+        { key: 'updateCard', label: '修改结算卡', path: '/cbkv2/card/updateCard', element: <UpdateCard /> },
+        { key: 'queryCard', label: '查询结算卡', path: '/cbkv2/card/queryCard', element: <QueryCard /> },
       ],
     },
     {
@@ -59,16 +73,8 @@ export const cbkv2MenuConfig: SegmentedOption = {
       ],
     },
     {
-      key: 'billApis',
-      label: '账单接口',
-      sidebarMenus: [
-        { key: 'billDownload', label: '分账数据对账单下载', path: '/cbkv2/bill/bill', element: <Bill /> },
-        { key: 'billBalanceDownload', label: '日终余额对账单下载', path: '/cbkv2/bill/billBalance', element: <BillBalance /> },
-      ],
-    },
-    {
       key: 'receiptApis',
-      label: '回单接口',
+      label: '归集接口',
       sidebarMenus: [
         { key: 'applyicreceipt', label: '申请电子回单', path: '/cbkv2/receipt/applyicreceipt', element: <Applyicreceipt /> },
         { key: 'apply', label: '中信交易明细电子回单申请', path: '/cbkv2/receipt/apply', element: <Apply /> },
@@ -76,13 +82,13 @@ export const cbkv2MenuConfig: SegmentedOption = {
       ],
     },
     {
-      key: 'unknownBillsApis',
-      label: '不明来帐接口',
+      key: 'billApis',
+      label: '对账单接口',
       sidebarMenus: [
-        { key: 'queryUnknownAccounts', label: '查询不明来账', path: '/cbkv2/unknownBills/queryUnknownAccounts', element: <QueryUnknownAccounts /> },
-        { key: 'handleUnknownAccount', label: '处理不明来账', path: '/cbkv2/unknownBills/handleUnknownAccount', element: <HandleUnknownAccount /> },
-        { key: 'HandleQueryUnknownAccount', label: '查询不明来账处理状态', path: '/cbkv2/unknownBills/handleQueryUnknownAccount', element: <HandleQueryUnknownAccount /> },
+        { key: 'billDownload', label: '分账数据对账单下载', path: '/cbkv2/bill/bill', element: <Bill /> },
+        { key: 'billBalanceDownload', label: '日终余额对账单下载', path: '/cbkv2/bill/billBalance', element: <BillBalance /> },
       ],
     },
+
   ]
 };

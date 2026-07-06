@@ -1,4 +1,4 @@
-// CBK账户余额分账接口
+// 绑定结算卡
 
 import React, { useMemo } from 'react';
 import ApiTester, { ParamDefinition } from '@/components/RequestTester';
